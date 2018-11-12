@@ -21,20 +21,16 @@ def main():
         pygame.event.pump()
         key = pygame.key.get_pressed()  # checking pressed keys
         if key[pygame.K_a]:
-            print('rap')
             xpos -= 50
         if key[pygame.K_s]:
-            print('rup')
             ypos += 50
         if key[pygame.K_d]:
-            print('rip')
             xpos += 50
         if key[pygame.K_w]:
-            print('rop')
             ypos -= 50
         if key[pygame.K_q]:
             sys.exit()
-        xpos1, ypos1 = xpos - ypos, (xpos + ypos) / 2
+        xpos1, ypos1 = xpos - ypos, (xpos + ypos) / 2  # Transformation cartesian --> isometric
         tile2.left, tile2.top = xpos1, ypos1
         screen.blit(img2, tile2)
 
@@ -49,7 +45,7 @@ def draw_board(columns, rows, img1):
     screen.fill((0, 0, 0))  # black
     for x in range(columns):
         for y in range(rows):
-            xi, yi = x - y, (x + y) / 2
+            xi, yi = x - y, (x + y) / 2  # Transformation cartesian --> isometric
             tile1 = img1.get_rect(center=(xi * 50 + 400, yi * 50 + 200))
             screen.blit(img1, tile1)
 
