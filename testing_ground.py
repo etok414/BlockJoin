@@ -6,7 +6,6 @@ pygame.init()
 size = width, height = 800, 800
 
 screen = pygame.display.set_mode(size)
-screen.set_colorkey((0, 0, 0))
 pygame.display.set_caption('BlockJoin')
 
 
