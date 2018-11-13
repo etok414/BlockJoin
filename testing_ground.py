@@ -13,8 +13,16 @@ def main():
     columns, rows = 6, 6
     img1 = pygame.image.load("graphics\\floor_tile1.png").convert()
     img1.set_colorkey((0, 0, 0))
-    # img2 = pygame.image.load("graphics\\cube1.png").convert()
-    # img2.set_colorkey((0, 0, 0))
+
+    pill_s = pygame.image.load("graphics\\pillSp.png").convert()
+    pill_s.set_colorkey((0, 0, 0))
+    pill_w = pygame.image.load("graphics\\pillWp.png").convert()
+    pill_w.set_colorkey((0, 0, 0))
+    pill_n = pygame.image.load("graphics\\pillNp.png").convert()
+    pill_n.set_colorkey((0, 0, 0))
+    pill_e = pygame.image.load("graphics\\pillEp.png").convert()
+    pill_e.set_colorkey((0, 0, 0))
+
     frog_e = pygame.image.load("graphics\\frogE.png").convert()
     frog_e.set_colorkey((0, 0, 0))
     frog_s = pygame.image.load("graphics\\frogS.png").convert()
@@ -25,8 +33,8 @@ def main():
     frog_n.set_colorkey((0, 0, 0))
 
     xpos, ypos = 420, 220
-    img2 = frog_e
-    tile2 = img2.get_rect(center=(xpos, ypos))
+    frog_img = frog_e
+    frog = frog_img.get_rect(center=(xpos, ypos))
     while 1:
         draw_board(columns, rows, img1)
         pygame.event.pump()
@@ -46,8 +54,8 @@ def main():
         if key[pygame.K_q]:
             sys.exit()
         xpos1, ypos1 = xpos - ypos, (xpos + ypos) / 2  # Transformation cartesian --> isometric
-        tile2.left, tile2.top = xpos1, ypos1
-        screen.blit(img2, tile2)
+        frog.left, frog.top = xpos1, ypos1
+        screen.blit(frog_img, frog)
 
         for event in pygame.event.get():  # Close nicely and display changes
             if event.type == pygame.QUIT:
