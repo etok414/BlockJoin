@@ -31,6 +31,7 @@ def main():
     frog_w.set_colorkey((0, 0, 0))
     frog_n = pygame.image.load("graphics\\frogN.png").convert()
     frog_n.set_colorkey((0, 0, 0))
+    print('rap')
 
     xpos, ypos = 420, 220
     frog_img = frog_e
