@@ -33,7 +33,7 @@ def main():
     frog_n.set_colorkey((0, 0, 0))
     print('rap')
 
-    xpos, ypos = 420, 220
+    xpos, ypos = 387, 222
     frog_img = frog_e
     frog = frog_img.get_rect(center=(xpos, ypos))
     while 1:
@@ -43,16 +43,16 @@ def main():
         if key[pygame.K_a]:
             xpos -= 50
             img2 = frog_w
-        if key[pygame.K_s]:
+        elif key[pygame.K_s]:
             ypos += 50
             img2 = frog_s
-        if key[pygame.K_d]:
+        elif key[pygame.K_d]:
             xpos += 50
             img2 = frog_e
-        if key[pygame.K_w]:
+        elif key[pygame.K_w]:
             ypos -= 50
             img2 = frog_n
-        if key[pygame.K_q]:
+        elif key[pygame.K_q]:
             sys.exit()
         xpos1, ypos1 = xpos - ypos, (xpos + ypos) / 2  # Transformation cartesian --> isometric
         frog.left, frog.top = xpos1, ypos1
@@ -62,7 +62,7 @@ def main():
             if event.type == pygame.QUIT:
                 sys.exit()
         pygame.display.flip()
-        pygame.time.delay(100)
+        pygame.time.delay(200)
 
 
 def draw_board(columns, rows, img1):
