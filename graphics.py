@@ -2,8 +2,6 @@ import sys
 import pygame
 
 
-
-
 def initialize():
     pygame.init()
 
@@ -36,13 +34,25 @@ def initialize():
     return graphics_dict, screen
 
 
-def draw_board(columns, rows, tile, screen):
+def draw_board(width, height, tile, screen):
     screen.fill((0, 0, 0))  # black
-    for x in range(columns):
-        for y in range(rows):
+    for x in range(width):
+        for y in range(height):
             xi, yi = x - y, (x + y) / 2  # Transformation cartesian --> isometric
             tile1 = tile.get_rect(center=(xi * 50 + 400, yi * 50 + 200))
             screen.blit(tile, tile1)
+
+
+def move_sprite(x_c, y_c, sprite, sprite_img, screen):
+    x_i, y_i = transform(x_c, y_c)
+    sprite.left, sprite.top = x_i, y_i
+    screen.blit(sprite_img, sprite)
+
+
+def transform(x_c, y_c):
+    """ Transforms cartesian coordinates to isometric coordinates """
+    x_i, y_i = x_c - y_c, (x_c+ y_c) / 2
+    return x_i, y_i
 
 
 def main():
