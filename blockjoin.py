@@ -1,7 +1,7 @@
 import sys
-from game_class import Game
+import game_class
 import pygame
-from graphics import draw_board, initialize, move_sprite
+from graphics import draw_board, initialize, move_sprite_to
 
 
 def main():
@@ -11,32 +11,38 @@ def main():
     draw_board(width, height, graphics_dict['tile'], screen)
     game = game_class.Game(width, height)
 
-    x_c, y_c = 387, 222
+    base_x, base_y = 337, 222
     blob_img = graphics_dict['blob_e']
     pill_img = graphics_dict['pill_e']
-    blob = blob_img.get_rect(center=(x_c, y_c))
+    blob = blob_img.get_rect(center=(base_x, base_y))
     pill = pill_img.get_rect(center=(400, 250))
+
+    move_sprite_to(base_x, base_y, blob, blob_img, screen)
 
     while True:
         draw_board(width, height, graphics_dict['tile'], screen)
-
-        move_sprite(x_c, y_c, blob, blob_img, screen)
 
         for event in pygame.event.get():  # Close nicely and display changes
             if event.type == pygame.QUIT:
                 sys.exit()
         pygame.event.pump()
         key = pygame.key.get_pressed()  # checking pressed keys
-        if key[pygame.K_a]:
-            game.move(0)
+        if key[pygame.K_w]:
+            game.move('n')
         elif key[pygame.K_d]:
-            game.move(1)
+            game.move('e')
         elif key[pygame.K_s]:
-            game.move(2)
-        elif key[pygame.K_w]:
-            game.move(3)
+            game.move('s')
+        elif key[pygame.K_a]:
+            game.move('w')
         elif key[pygame.K_q]:
             sys.exit()
+
+        blob_img = graphics_dict[f'blob_{game.letter_direction}']
+
+        move_sprite_to(base_x + (game.x_pos * 50), base_y - (game.y_pos * 50), blob, blob_img, screen)
+
+
         pygame.display.flip()
 
         pygame.time.delay(150)

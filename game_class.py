@@ -6,8 +6,8 @@ class Game:
         self.carried_block = False
         self.x_pos = 0
         self.y_pos = 0
-        self.number_direction = 0
-        self.dir_dict = {0: (0, 1), 1: (1, 0), 2: (0, -1), 3: (-1, 0)}
+        self.letter_direction = 'e'
+        self.dir_dict = {'n': (0, 1), 'e': (1, 0), 's': (0, -1), 'w': (-1, 0)}
         self.status = 'Fine'
         # Status is 'Fine' if the player is on the ground, 'Elevated' if it's on a block, and if it's holding a block,
         # that's its status.
@@ -18,15 +18,15 @@ class Game:
         self.board_width = width
 
     def direction(self):
-        return self.dir_dict[self.number_direction]
+        return self.dir_dict[self.letter_direction]
 
     def receive_input(self, received_input):
         pass
 
     def move(self, movement_direction):
         # TODO: Movement animation.
-        if self.number_direction != movement_direction:
-            self.number_direction = movement_direction
+        if self.letter_direction != movement_direction:
+            self.letter_direction = movement_direction
             if self.status != 'Fine' and self.status != 'Elevated':
                 self.status.orientation = movement_direction
         else:
@@ -87,7 +87,7 @@ class Game:
 
     def probe(self, coordinate):
         # Returns 'Occupied' if the space is occupied, 'Empty' if it's empty, and None if it doesn't exist
-        if 0 <= coordinate[0] <= self.board_width and 0 <= coordinate[1] <= self.board_height:
+        if 0 <= coordinate[0] < self.board_width and 0 <= coordinate[1] < self.board_height:
             if self.blocks.get(coordinate):
                 return 'Occupied'
             else:

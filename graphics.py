@@ -43,7 +43,7 @@ def draw_board(width, height, tile, screen):
             screen.blit(tile, tile1)
 
 
-def move_sprite(x_c, y_c, sprite, sprite_img, screen):
+def move_sprite_to(x_c, y_c, sprite, sprite_img, screen):
     x_i, y_i = transform(x_c, y_c)
     sprite.left, sprite.top = x_i, y_i
     screen.blit(sprite_img, sprite)
