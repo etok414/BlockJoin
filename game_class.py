@@ -2,7 +2,7 @@ import random
 
 
 class Game:
-    def __init__(self, height, width):
+    def __init__(self, width, height):
         self.carried_block = False
         self.x_pos = 0
         self.y_pos = 0
