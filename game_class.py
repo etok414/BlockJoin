@@ -11,11 +11,12 @@ class Game:
         self.status = 'Fine'
         # Status is 'Fine' if the player is on the ground, 'Elevated' if it's on a block, and if it's holding a block,
         # that's its status.
-        self.bag = [0, 1, 2, 3]
+        self.bag = ['n','e','s','w']
         random.shuffle(self.bag)
         self.blocks = {}
         self.board_height = height
         self.board_width = width
+        self.falling_block = self.make_block()
 
     def direction(self):
         return self.dir_dict[self.letter_direction]
@@ -28,7 +29,7 @@ class Game:
         if self.letter_direction != movement_direction:
             self.letter_direction = movement_direction
             if self.status != 'Fine' and self.status != 'Elevated':
-                self.status.orientation = movement_direction
+                self.status[2] = movement_direction
         else:
             moved_coors = (self.x_pos + self.direction()[0], self.y_pos + self.direction()[1])
             probe_result = self.probe(moved_coors)
@@ -70,11 +71,43 @@ class Game:
             else:
                 self.status = 'Fine'
 
-    def make_block(self, orientation, is_ghost=False):
-        pass
+    def make_block(self, orientation=None, xpos=None, ypos=None, is_ghost=False):
+        if not orientation and not xpos and not ypos:
+            drop_clock = 150
+        else:
+            drop_clock = False
+        if not orientation:
+            if not self.bag:
+                self.bag = ['n','e','s','w']
+                random.shuffle(self.bag)
+            orientation = self.bag.pop(0)
+        if not xpos:
+            xpos = random.randrange(1, self.board_width-2)
+        if not ypos:
+            ypos = random.randrange(1, self.board_height-2)
+        block_list = [
+            xpos,
+            ypos,
+            orientation,
+            is_ghost,
+        ]
+        if drop_clock:
+            block_list.append(drop_clock)
+        return block_list
 
-    def update(self):
-        pass
+    def update_falling_block(self, clock_ticks=1):
+        self.falling_block[4] -= clock_ticks
+        if self.falling_block[4] <= 0:
+            if self.blocks[(self.falling_block[0], self.falling_block[1])]:
+                return 'failure'
+            elif self.x_pos == self.falling_block[0] and self.y_pos == self.falling_block[1]:
+                self.status = self.falling_block
+                self.falling_block = self.make_block()
+                return 'head_landing'
+            else:
+                self.blocks[(self.falling_block[0], self.falling_block[1])] = self.falling_block
+                self.falling_block = self.make_block()
+                return 'ground_landing'
 
     def ghosts(self):
         pass

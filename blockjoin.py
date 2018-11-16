@@ -22,14 +22,16 @@ def main():
     while True:
         draw_board(width, height, graphics_dict['tile'], screen)
 
-        blob_img = graphics_dict[f'blob_{game.letter_direction}']
-
         check_keyboard(game)
 
+        blob_img = graphics_dict[f'blob_{game.letter_direction}']
         move_sprite_to(base_x + (game.x_pos * 50), base_y - (game.y_pos * 50), blob, blob_img, screen)
 
         pygame.display.flip()
-        pygame.time.delay(150)
+
+        for _ in range(4):
+            pygame.time.delay(33)
+            block_drop(game)
 
 
 def check_keyboard(game):
@@ -48,6 +50,15 @@ def check_keyboard(game):
         game.move('w')
     elif key[pygame.K_q]:
         sys.exit()
+
+
+def block_drop(game):
+    result = game.update_falling_block()
+    if result == 'failure':
+        sys.exit()
+    else:
+        pass
+    # TODO: Make the dropping animations, and make the things land.
 
 
 if __name__ == '__main__':
