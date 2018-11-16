@@ -22,30 +22,32 @@ def main():
     while True:
         draw_board(width, height, graphics_dict['tile'], screen)
 
-        for event in pygame.event.get():  # Close nicely and display changes
-            if event.type == pygame.QUIT:
-                sys.exit()
-        pygame.event.pump()
-        key = pygame.key.get_pressed()  # checking pressed keys
-        if key[pygame.K_w]:
-            game.move('n')
-        elif key[pygame.K_d]:
-            game.move('e')
-        elif key[pygame.K_s]:
-            game.move('s')
-        elif key[pygame.K_a]:
-            game.move('w')
-        elif key[pygame.K_q]:
-            sys.exit()
-
         blob_img = graphics_dict[f'blob_{game.letter_direction}']
+
+        check_keyboard(game)
 
         move_sprite_to(base_x + (game.x_pos * 50), base_y - (game.y_pos * 50), blob, blob_img, screen)
 
-
         pygame.display.flip()
-
         pygame.time.delay(150)
+
+
+def check_keyboard(game):
+    for event in pygame.event.get():  # Close nicely and display changes
+        if event.type == pygame.QUIT:
+            sys.exit()
+    pygame.event.pump()
+    key = pygame.key.get_pressed()  # checking pressed keys
+    if key[pygame.K_w]:
+        game.move('n')
+    elif key[pygame.K_d]:
+        game.move('e')
+    elif key[pygame.K_s]:
+        game.move('s')
+    elif key[pygame.K_a]:
+        game.move('w')
+    elif key[pygame.K_q]:
+        sys.exit()
 
 
 if __name__ == '__main__':
