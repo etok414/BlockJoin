@@ -31,7 +31,7 @@ def main():
 
         for _ in range(4):
             pygame.time.delay(33)
-            block_drop(game)
+            block_drop(game, graphics_dict, screen)
 
 
 def check_keyboard(game):
@@ -52,10 +52,19 @@ def check_keyboard(game):
         sys.exit()
 
 
-def block_drop(game):
+def block_drop(game, graphics_dict, screen):
     result = game.update_falling_block()
     if result == 'failure':
         sys.exit()
+    if result == 'ground_landing':
+        for dummy in range(1, 6):
+            tile_img = graphics_dict[f'tile_shadow{dummy}']
+            tile = graphics_dict[f'tile_shadow{dummy}'].get_rect()
+            move_sprite_to(game.falling_block[0], game.falling_block[1], tile, tile_img, screen)
+            pygame.time.delay(133)
+            screen.blit(tile_img, tile)
+            pygame.display.flip()
+
     else:
         pass
     # TODO: Make the dropping animations, and make the things land.

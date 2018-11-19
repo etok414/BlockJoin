@@ -10,8 +10,19 @@ def initialize():
     pygame.display.set_caption('BlockJoin')
 
     graphics_dict = dict()
-    graphics_dict['tile'] = pygame.image.load("graphics\\floor_tile1.png").convert()
+
+    graphics_dict['tile'] = pygame.image.load("graphics\\tile.png").convert()
     graphics_dict['tile'].set_colorkey((0, 0, 0))
+    graphics_dict['tile_shadow1'] = pygame.image.load("graphics\\tile_shadow1.png").convert()
+    graphics_dict['tile_shadow1'].set_colorkey((0, 0, 0))
+    graphics_dict['tile_shadow2'] = pygame.image.load("graphics\\tile_shadow2.png").convert()
+    graphics_dict['tile_shadow2'].set_colorkey((0, 0, 0))
+    graphics_dict['tile_shadow3'] = pygame.image.load("graphics\\tile_shadow3.png").convert()
+    graphics_dict['tile_shadow3'].set_colorkey((0, 0, 0))
+    graphics_dict['tile_shadow4'] = pygame.image.load("graphics\\tile_shadow4.png").convert()
+    graphics_dict['tile_shadow4'].set_colorkey((0, 0, 0))
+    graphics_dict['tile_shadow5'] = pygame.image.load("graphics\\tile_shadow5.png").convert()
+    graphics_dict['tile_shadow5'].set_colorkey((0, 0, 0))
 
     graphics_dict['pill_s'] = pygame.image.load("graphics\\pillSp.png").convert()
     graphics_dict['pill_s'].set_colorkey((0, 0, 0))
@@ -51,7 +62,7 @@ def move_sprite_to(x_c, y_c, sprite, sprite_img, screen):
 
 def transform(x_c, y_c):
     """ Transforms cartesian coordinates to isometric coordinates """
-    x_i, y_i = x_c - y_c, (x_c+ y_c) / 2
+    x_i, y_i = x_c - y_c, (x_c + y_c) / 2
     return x_i, y_i
 
 
