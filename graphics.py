@@ -24,13 +24,13 @@ def initialize():
     graphics_dict['tile_shadow5'] = pygame.image.load("graphics\\tile_shadow5.png").convert()
     graphics_dict['tile_shadow5'].set_colorkey((0, 0, 0))
 
-    graphics_dict['pill_s'] = pygame.image.load("graphics\\pillSp.png").convert()
+    graphics_dict['pill_s'] = pygame.image.load("graphics\\pillS.png").convert()
     graphics_dict['pill_s'].set_colorkey((0, 0, 0))
-    graphics_dict['pill_w'] = pygame.image.load("graphics\\pillWp.png").convert()
+    graphics_dict['pill_w'] = pygame.image.load("graphics\\pillW.png").convert()
     graphics_dict['pill_w'].set_colorkey((0, 0, 0))
-    graphics_dict['pill_n'] = pygame.image.load("graphics\\pillNp.png").convert()
+    graphics_dict['pill_n'] = pygame.image.load("graphics\\pillN.png").convert()
     graphics_dict['pill_n'].set_colorkey((0, 0, 0))
-    graphics_dict['pill_e'] = pygame.image.load("graphics\\pillEp.png").convert()
+    graphics_dict['pill_e'] = pygame.image.load("graphics\\pillE.png").convert()
     graphics_dict['pill_e'].set_colorkey((0, 0, 0))
 
     graphics_dict['blob_e'] = pygame.image.load("graphics\\frogE.png").convert()
@@ -70,6 +70,18 @@ def main():
     graphics_dict, screen = initialize()
     draw_board(6, 6, graphics_dict['tile'], screen)
     while True:
+        pilln = graphics_dict['pill_n']
+        pille = graphics_dict['pill_e']
+        pillw = graphics_dict['pill_w']
+        pills = graphics_dict['pill_s']
+        pill_n = pilln.get_rect(center=(0 * 50 + 400, 3 * 50 + 200))
+        pill_e = pille.get_rect(center=(2 * 50 + 400, 2 * 50 + 200))
+        pill_w = pillw.get_rect(center=(3 * 49 + 400, 3 * 41 + 200))
+        pill_s = pills.get_rect(center=(1 * 60 + 400, 2 * 55 + 200))
+        screen.blit(pilln, pill_n)
+        screen.blit(pille, pill_e)
+        screen.blit(pillw, pill_w)
+        screen.blit(pills, pill_s)
         for event in pygame.event.get():  # Close nicely and display changes
             if event.type == pygame.QUIT:
                 sys.exit()
