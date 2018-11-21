@@ -8,6 +8,8 @@ from graphics import draw_board, initialize, move_sprite_to
         * A cartesian blown up to fit the screen
         * An isometric to position sprites in 2.5D
 """
+
+
 # TODO Merge the last two coordinate systems. Blowing up and transforming to isometric should be one process
 
 
