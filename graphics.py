@@ -46,10 +46,10 @@ def initialize():
 
 
 def draw_board(width, height, tile, screen):
-    screen.fill((0, 0, 0))  # black
-    for x in range(width):
-        for y in range(height):
-            xi, yi = x - y, (x + y) / 2  # Transformation cartesian --> isometric
+    screen.fill((0, 0, 0))  # Black
+    for x_c in range(width):
+        for y_c in range(height):
+            xi, yi = transform(x_c, y_c)
             tile1 = tile.get_rect(center=(xi * 50 + 400, yi * 50 + 200))
             screen.blit(tile, tile1)
 
@@ -67,6 +67,7 @@ def transform(x_c, y_c):
 
 
 def main():
+    """ Just for testing purposes """
     graphics_dict, screen = initialize()
     draw_board(6, 6, graphics_dict['tile'], screen)
     while True:

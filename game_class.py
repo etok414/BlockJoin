@@ -10,26 +10,27 @@ class Actor:
         self.board_height = board_height
 
     def direction(self, direction=None):
+        """ Translate direction string n, e, w, s to direction vector i, j, -i, -j """
         if direction is None:
-            return {'n': (0, 1), 'e': (1, 0), 's': (0, -1), 'w': (-1, 0)}[self.letter_direction]
-        else:
-            return {'n': (0, 1), 'e': (1, 0), 's': (0, -1), 'w': (-1, 0)}[direction]
+            direction = self.letter_direction
+
+        return {'n': (0, 1), 'e': (1, 0), 'w': (-1, 0), 's': (0, -1)}[direction]
 
     def receive_input(self, received_input):
         pass
 
     def move(self, movement_direction, block_list, can_jump=False):
         # TODO: Movement animation.
-        moved_coors = (self.x_pos + self.direction(movement_direction)[0],
-                       self.y_pos + self.direction(movement_direction)[1])
+        delta_x, delta_y = self.direction(movement_direction)[0], self.direction(movement_direction)[1]
+        moved_coors = (self.x_pos + delta_x, self.y_pos + delta_y)
         probe_result = self.probe(moved_coors[0], moved_coors[1], block_list)
 
         if probe_result and (probe_result == 'Empty' or can_jump):
             self.x_pos, self.y_pos = moved_coors
 
     def probe(self, x_coor, y_coor, block_list):
-        # Returns the block that occupies the space if it's occupied, 'Empty' if it's empty, and
-        # None if it's outside the board
+        """ Returns the block that occupies the space if it's occupied, 'Empty' if it's empty,
+        and None if it's outside the board """
         if 0 <= x_coor < self.board_width and 0 <= y_coor < self.board_height:
             for block in block_list:
                 if block.x_pos == x_coor and block.y_pos == y_coor:
@@ -40,7 +41,7 @@ class Actor:
         x += self.x_pos * 50
         y += self.y_pos * 50
 
-        y = -y  # This is because pygame's coordinate system is upside down
+        y = -y  # This is because pygame's coordinate system is upside down (Data science convention)
         return x, y
 
 
@@ -72,8 +73,8 @@ class Player(Actor):
         direction = self.direction()
         if self.carried_block:
             block_list.append(Block(self.carried_block.board_width, self.carried_block.board_height,
-                                    self.carried_block.bag , self.carried_block.direction, self.carried_block.x_pos,
-                                    self.carried_block.y_pos))
+                                    self.carried_block.bag, self.carried_block.direction,
+                                    self.carried_block.x_pos, self.carried_block.y_pos))
             self.carried_block = None
             reversal_dict = {'n': 's', 'e': 'w', 's': 'n', 'w': 'e'}
             self.move(reversal_dict[self.letter_direction], block_list, turn_to_face=False)

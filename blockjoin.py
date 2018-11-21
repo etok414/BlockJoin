@@ -3,6 +3,13 @@ import game_class
 import pygame
 from graphics import draw_board, initialize, move_sprite_to
 
+""" Three coordinate systems are used: 
+        * A cartesian keeping track of the position on the board
+        * A cartesian blown up to fit the screen
+        * An isometric to position sprites in 2.5D
+"""
+# TODO Merge the last two coordinate systems. Blowing up and transforming to isometric should be one process
+
 
 def main():
     width, height = 6, 6
@@ -12,9 +19,7 @@ def main():
 
     base_x, base_y = 337, 222
     blob_img = graphics_dict['blob_e']
-    pill_img = graphics_dict['pill_e']
     blob = blob_img.get_rect(center=(base_x, base_y))
-    pill = pill_img.get_rect(center=(400, 250))
 
     move_sprite_to(base_x, base_y, blob, blob_img, screen)
 
@@ -27,9 +32,9 @@ def main():
 
         check_keyboard(player, block_list)
 
-        blob_img = graphics_dict[f'blob_{player.letter_direction}']
         real_pos = player.get_real_pos(base_x, base_y)
-        move_sprite_to(real_pos[0], real_pos[1], blob, graphics_dict[f'blob_{player.letter_direction}'], screen)
+        blob_img = graphics_dict[f'blob_{player.letter_direction}']
+        move_sprite_to(real_pos[0], real_pos[1], blob, blob_img, screen)
 
         pygame.display.flip()
 
@@ -58,16 +63,19 @@ def check_keyboard(player, block_list):
 
 def block_drop(falling_block, player, block_list):
     drop_result = falling_block.update_falling(player, block_list)
+
+    width, height = falling_block.board_width, falling_block.board_height
+    bag, direction = falling_block.bag, falling_block.direction
+    x_pos, y_pos = falling_block.x_pos, falling_block.y_pos
+
     if drop_result == 'failure':
         sys.exit()
     elif drop_result == 'head_landing':
-        player.carried_block = game_class.Block(falling_block.board_width, falling_block.board_height, falling_block.bag
-                                                , falling_block.direction, falling_block.x_pos, falling_block.y_pos)
-        falling_block = game_class.Block(falling_block.board_width, falling_block.board_height, bag=falling_block.bag)
+        player.carried_block = game_class.Block(width, height, bag, direction, x_pos, y_pos)
+        falling_block = game_class.Block(width, height, bag=bag)
     elif drop_result == 'ground_landing':
-        block_list.append(game_class.Block(falling_block.board_width, falling_block.board_height, falling_block.bag,
-                                           falling_block.direction, falling_block.x_pos, falling_block.y_pos))
-        falling_block = game_class.Block(falling_block.board_width, falling_block.board_height, bag=falling_block.bag)
+        block_list.append(game_class.Block(width, height, bag, direction, x_pos, y_pos))
+        falling_block = game_class.Block(width, height, bag=bag)
     return falling_block
     # TODO: Make the dropping animations, and make the things land.
 
