@@ -16,9 +16,6 @@ class Actor:
 
         return {'n': (0, 1), 'e': (1, 0), 'w': (-1, 0), 's': (0, -1)}[direction]
 
-    def receive_input(self, received_input):
-        pass
-
     def move(self, movement_direction, block_list, can_jump=False):
         delta_x, delta_y = self.direction(movement_direction)[0], self.direction(movement_direction)[1]
         moved_coors = (self.x_pos + delta_x, self.y_pos + delta_y)
@@ -37,12 +34,11 @@ class Actor:
                     return block
             return 'Emtpy'
 
-    def get_real_pos(self, x, y):
-        x += self.x_pos * 50
-        y += self.y_pos * 50
-
-        y = -y  # This is because pygame's coordinate system is upside down (Data science convention)
-        return x, y
+    def get_real_pos(self, base_x, base_y):
+        x_c = base_x + self.x_pos * 50
+        y_c = base_y + self.y_pos * 50
+        x_i, y_i = x_c - y_c, (x_c + y_c) / 2
+        return x_i, y_i
 
 
 class Player(Actor):
@@ -85,11 +81,14 @@ class Player(Actor):
                     probe_result.move(self.letter_direction, block_list)
             # TODO: Punch animation.
 
-    def get_real_pos(self, x, y):
+    def get_real_pos(self, base_x, base_y):
+        x_i, y_i = super().get_real_pos(base_x, base_y)
         if self.status == 'Elevated':
-            x -= 25
-            y += 25
-        return super().get_real_pos(x, y)
+            y_i += 25
+
+        y_u = 800-y_i  # This is because pygame's coordinate system is upside down (Data science convention)
+        print(f'x_pos:{self.x_pos} xi:{x_i} y_pos:{self.y_pos} yi:{y_u}')
+        return x_i, y_u
 
 
 class Block(Actor):
@@ -122,13 +121,14 @@ class Block(Actor):
             else:
                 return 'Ground_landing'
 
-    def get_real_pos(self, x, y):
+    def get_real_pos(self, base_x, base_y):
+        x_i, y_i = super().get_real_pos(base_x, base_y)
         if self.drop_clock > 0:
-            x -= 25
-            y += 25
-            x -= self.drop_clock
-            y += self.drop_clock
-        return super().get_real_pos(x, y)
+            y_i += 25
+            y_i += self.drop_clock
+
+        y_u = 800-y_i  # This is because pygame's coordinate system is upside down (Data science convention)
+        return x_i, y_u
 
 
 def ghosts(self):

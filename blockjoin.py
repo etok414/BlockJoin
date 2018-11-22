@@ -20,29 +20,38 @@ def main():
     draw_board(width, height, graphics_dict['tile'], screen)
 
     base_x, base_y = 337, 222
-    blob_img = graphics_dict['blob_e']
-    blob = blob_img.get_rect(center=(base_x, base_y))
+    player_img = graphics_dict['blob_e']
+    player_sprite = player_img.get_rect(center=(base_x, base_y))
 
-    move_sprite_to(base_x, base_y, blob, blob_img, screen)
+    move_sprite_to(base_x, base_y, player_sprite, player_img, screen)
 
     block_list = []
     falling_block = game_class.Block(width, height)
     player = game_class.Player(width, height)
+
+    block_img = graphics_dict['pill_e']
+    block_sprite = block_img.get_rect(center=(base_x, base_y))
+    real_pos = falling_block.get_real_pos(base_x, base_y)
+    move_sprite_to(real_pos[0], real_pos[1], block_sprite, block_img, screen)
 
     while True:
         draw_board(width, height, graphics_dict['tile'], screen)
 
         check_keyboard(player, block_list)
 
+        player_img = graphics_dict[f'blob_{player.letter_direction}']
         real_pos = player.get_real_pos(base_x, base_y)
-        blob_img = graphics_dict[f'blob_{player.letter_direction}']
-        move_sprite_to(real_pos[0], real_pos[1], blob, blob_img, screen)
+        move_sprite_to(real_pos[0], real_pos[1], player_sprite, player_img, screen)
 
         pygame.display.flip()
 
         for _ in range(4):
             pygame.time.delay(33)
             block_drop(falling_block, player, block_list)
+
+            block_img = graphics_dict[f'pill_{falling_block.letter_direction}']
+            real_pos = falling_block.get_real_pos(base_x, base_y)
+            move_sprite_to(real_pos[0], real_pos[1], block_sprite, block_img, screen)
 
 
 def check_keyboard(player, block_list):
@@ -59,6 +68,8 @@ def check_keyboard(player, block_list):
         player.move('s', block_list)
     elif key[pygame.K_a]:
         player.move('w', block_list)
+    elif key[pygame.K_SPACE]:
+        player.push(block_list)
     elif key[pygame.K_q]:
         sys.exit()
 

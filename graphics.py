@@ -49,21 +49,14 @@ def draw_board(width, height, tile, screen):
     screen.fill((0, 0, 0))  # Black
     for x_c in range(width):
         for y_c in range(height):
-            xi, yi = transform(x_c, y_c)
-            tile1 = tile.get_rect(center=(xi * 50 + 400, yi * 50 + 200))
+            x_i, y_i = x_c - y_c, (x_c + y_c) / 2
+            tile1 = tile.get_rect(center=(x_i * 50 + 400, y_i * 50 + 200))
             screen.blit(tile, tile1)
 
 
-def move_sprite_to(x_c, y_c, sprite, sprite_img, screen):
-    x_i, y_i = transform(x_c, y_c)
+def move_sprite_to(x_i, y_i, sprite, sprite_img, screen):
     sprite.left, sprite.top = x_i, y_i
     screen.blit(sprite_img, sprite)
-
-
-def transform(x_c, y_c):
-    """ Transforms cartesian coordinates to isometric coordinates """
-    x_i, y_i = x_c - y_c, (x_c + y_c) / 2
-    return x_i, y_i
 
 
 def main():
