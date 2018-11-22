@@ -1,3 +1,4 @@
+import os
 import sys
 import pygame
 
@@ -9,38 +10,22 @@ def initialize():
     screen = pygame.display.set_mode(size)
     pygame.display.set_caption('BlockJoin')
 
-    graphics_dict = dict()
+    graphics_dict = dict()  # A dictionary for all images with their filename as keys
 
-    graphics_dict['tile'] = pygame.image.load("graphics\\tile.png").convert()
-    graphics_dict['tile'].set_colorkey((0, 0, 0))
-    graphics_dict['tile_shadow1'] = pygame.image.load("graphics\\tile_shadow1.png").convert()
-    graphics_dict['tile_shadow1'].set_colorkey((0, 0, 0))
-    graphics_dict['tile_shadow2'] = pygame.image.load("graphics\\tile_shadow2.png").convert()
-    graphics_dict['tile_shadow2'].set_colorkey((0, 0, 0))
-    graphics_dict['tile_shadow3'] = pygame.image.load("graphics\\tile_shadow3.png").convert()
-    graphics_dict['tile_shadow3'].set_colorkey((0, 0, 0))
-    graphics_dict['tile_shadow4'] = pygame.image.load("graphics\\tile_shadow4.png").convert()
-    graphics_dict['tile_shadow4'].set_colorkey((0, 0, 0))
-    graphics_dict['tile_shadow5'] = pygame.image.load("graphics\\tile_shadow5.png").convert()
-    graphics_dict['tile_shadow5'].set_colorkey((0, 0, 0))
+    base_folder = os.path.dirname(__file__)
+    folder = 'graphics'  # All graphics for the game have to go into this folder as .png or .PNG
+    _path = os.path.join(base_folder, folder)
+    path = os.path.normpath(_path)
 
-    graphics_dict['pill_s'] = pygame.image.load("graphics\\pillS.png").convert()
-    graphics_dict['pill_s'].set_colorkey((0, 0, 0))
-    graphics_dict['pill_w'] = pygame.image.load("graphics\\pillW.png").convert()
-    graphics_dict['pill_w'].set_colorkey((0, 0, 0))
-    graphics_dict['pill_n'] = pygame.image.load("graphics\\pillN.png").convert()
-    graphics_dict['pill_n'].set_colorkey((0, 0, 0))
-    graphics_dict['pill_e'] = pygame.image.load("graphics\\pillE.png").convert()
-    graphics_dict['pill_e'].set_colorkey((0, 0, 0))
+    file_list = os.listdir(path)  # All files in the graphics directory is read into a list...
 
-    graphics_dict['blob_e'] = pygame.image.load("graphics\\frogE.png").convert()
-    graphics_dict['blob_e'].set_colorkey((0, 0, 0))
-    graphics_dict['blob_s'] = pygame.image.load("graphics\\frogS.png").convert()
-    graphics_dict['blob_s'].set_colorkey((0, 0, 0))
-    graphics_dict['blob_w'] = pygame.image.load("graphics\\frogW.png").convert()
-    graphics_dict['blob_w'].set_colorkey((0, 0, 0))
-    graphics_dict['blob_n'] = pygame.image.load("graphics\\frogN.png").convert()
-    graphics_dict['blob_n'].set_colorkey((0, 0, 0))
+    for file_name in file_list:  # ...and only the .png files are loaded and stored in a dict with filename as key
+        if file_name[-4:].lower() == '.png':
+            _full_path = os.path.join(base_folder, folder, file_name)
+            full_path = os.path.normpath(_full_path)
+
+            graphics_dict[file_name[:-4]] = pygame.image.load(full_path).convert()
+            graphics_dict[file_name[:-4]].set_colorkey((0, 0, 0))  # All black (0,0,0) is ignored (Pseudo alpha channel)
 
     return graphics_dict, screen
 
@@ -64,10 +49,10 @@ def main():
     graphics_dict, screen = initialize()
     draw_board(6, 6, graphics_dict['tile'], screen)
     while True:
-        pilln = graphics_dict['pill_n']
-        pille = graphics_dict['pill_e']
-        pillw = graphics_dict['pill_w']
-        pills = graphics_dict['pill_s']
+        pilln = graphics_dict['pillN']
+        pille = graphics_dict['pillE']
+        pillw = graphics_dict['pillW']
+        pills = graphics_dict['pillS']
         pill_n = pilln.get_rect(center=(0 * 50 + 400, 3 * 50 + 200))
         pill_e = pille.get_rect(center=(2 * 50 + 400, 2 * 50 + 200))
         pill_w = pillw.get_rect(center=(3 * 49 + 400, 3 * 41 + 200))
@@ -76,6 +61,7 @@ def main():
         screen.blit(pille, pill_e)
         screen.blit(pillw, pill_w)
         screen.blit(pills, pill_s)
+
         for event in pygame.event.get():  # Close nicely and display changes
             if event.type == pygame.QUIT:
                 sys.exit()
