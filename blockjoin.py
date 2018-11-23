@@ -20,14 +20,14 @@ def main():
     draw_board(width, height, graphics_dict['tile'], screen)
 
     base_x, base_y = 337, 222
-    player_img = graphics_dict['blob_e']
-    player_sprite = player_img.get_rect(center=(base_x, base_y))
-
-    move_sprite_to(base_x, base_y, player_sprite, player_img, screen)
 
     block_list = []
     falling_block = game_class.Block(width, height)
     player = game_class.Player(width, height)
+
+    player_img = graphics_dict['blob_e']
+    player_sprite = player_img.get_rect(center=(base_x, base_y))
+    move_sprite_to(base_x, base_y, player_sprite, player_img, screen)
 
     block_img = graphics_dict['pill_e']
     block_sprite = block_img.get_rect(center=(base_x, base_y))
@@ -43,11 +43,9 @@ def main():
         real_pos = player.get_real_pos(base_x, base_y)
         move_sprite_to(real_pos[0], real_pos[1], player_sprite, player_img, screen)
 
-        pygame.display.flip()
-
         for _ in range(4):
             pygame.time.delay(33)
-            block_drop(falling_block, player, block_list)
+            falling_block = block_drop(falling_block, player, block_list)
 
             block_img = graphics_dict[f'pill_{falling_block.letter_direction}']
             real_pos = falling_block.get_real_pos(base_x, base_y)
@@ -81,12 +79,13 @@ def block_drop(falling_block, player, block_list):
     bag, direction = falling_block.bag, falling_block.direction
     x_pos, y_pos = falling_block.x_pos, falling_block.y_pos
 
-    if drop_result == 'failure':
+    if drop_result == 'Failure':
+        print('Failure')
         sys.exit()
-    elif drop_result == 'head_landing':
+    elif drop_result == 'Head_landing':
         player.carried_block = game_class.Block(width, height, bag, direction, x_pos, y_pos)
         falling_block = game_class.Block(width, height, bag=bag)
-    elif drop_result == 'ground_landing':
+    elif drop_result == 'Ground_landing':
         block_list.append(game_class.Block(width, height, bag, direction, x_pos, y_pos))
         falling_block = game_class.Block(width, height, bag=bag)
     return falling_block

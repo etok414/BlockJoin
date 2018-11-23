@@ -2,7 +2,7 @@ import random
 
 
 class Actor:
-    def __init__(self, board_width, board_height, direction, x_pos=337, y_pos=222):
+    def __init__(self, board_width, board_height, direction, x_pos, y_pos):
         self.x_pos = x_pos
         self.y_pos = y_pos
         self.letter_direction = direction
@@ -17,13 +17,12 @@ class Actor:
         return {'n': (0, 1), 'e': (1, 0), 'w': (-1, 0), 's': (0, -1)}[direction]
 
     def move(self, movement_direction, block_list, can_jump=False):
-        delta_x, delta_y = self.direction(movement_direction)[0], self.direction(movement_direction)[1]
+        delta_x, delta_y = self.direction(movement_direction)
         moved_coors = (self.x_pos + delta_x, self.y_pos + delta_y)
         probe_result = self.probe(moved_coors[0], moved_coors[1], block_list)
 
         if probe_result and (probe_result == 'Empty' or can_jump):
             self.x_pos, self.y_pos = moved_coors
-        # TODO: Movement animation.
 
     def probe(self, x_coor, y_coor, block_list):
         """ Returns the block that occupies the space if it's occupied, 'Empty' if it's empty,
@@ -32,11 +31,11 @@ class Actor:
             for block in block_list:
                 if block.x_pos == x_coor and block.y_pos == y_coor:
                     return block
-            return 'Emtpy'
+            return 'Empty'
 
     def get_real_pos(self, base_x, base_y):
         x_c = base_x + self.x_pos * 50
-        y_c = base_y + self.y_pos * 50
+        y_c = base_y - self.y_pos * 50
         x_i, y_i = x_c - y_c, (x_c + y_c) / 2
         return x_i, y_i
 
@@ -58,11 +57,10 @@ class Player(Actor):
             super().move(movement_direction, block_list, can_jump=False if self.carried_block else True)
             if self.carried_block:
                 self.status = 'Grounded'
-            elif self.probe(self.x_pos, self.y_pos, block_list) != 'Empty':
+                return
+            if self.probe(self.x_pos, self.y_pos, block_list) != 'Empty':
                 self.status = 'Elevated'
-                # TODO: Animation for jumping onto blocks.
             else:
-                # TODO: Animation for jumping off blocks.
                 self.status = 'Fine'
 
     def push(self, block_list):
@@ -84,11 +82,8 @@ class Player(Actor):
     def get_real_pos(self, base_x, base_y):
         x_i, y_i = super().get_real_pos(base_x, base_y)
         if self.status == 'Elevated':
-            y_i += 25
-
-        y_u = 800-y_i  # This is because pygame's coordinate system is upside down (Data science convention)
-        print(f'x_pos:{self.x_pos} xi:{x_i} y_pos:{self.y_pos} yi:{y_u}')
-        return x_i, y_u
+            y_i -= 25
+        return x_i, y_i
 
 
 class Block(Actor):
@@ -123,12 +118,10 @@ class Block(Actor):
 
     def get_real_pos(self, base_x, base_y):
         x_i, y_i = super().get_real_pos(base_x, base_y)
-        if self.drop_clock > 0:
-            y_i += 25
-            y_i += self.drop_clock
-
-        y_u = 800-y_i  # This is because pygame's coordinate system is upside down (Data science convention)
-        return x_i, y_u
+        if self.drop_clock >= 0:
+            y_i -= 25
+            y_i -= self.drop_clock
+        return x_i, y_i
 
 
 def ghosts(self):

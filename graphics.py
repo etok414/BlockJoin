@@ -42,6 +42,7 @@ def draw_board(width, height, tile, screen):
 def move_sprite_to(x_i, y_i, sprite, sprite_img, screen):
     sprite.left, sprite.top = x_i, y_i
     screen.blit(sprite_img, sprite)
+    pygame.display.flip()
 
 
 def main():
