@@ -33,9 +33,9 @@ class Actor:
                     return block
             return 'Empty'
 
-    def get_real_pos(self, base_x, base_y):
-        x_c = base_x + self.x_pos * 50
-        y_c = base_y - self.y_pos * 50
+    def calc_screen_pos(self):
+        x_c = self.x_pos * 50
+        y_c = -self.y_pos * 50
         x_i, y_i = x_c - y_c, (x_c + y_c) / 2
         return x_i, y_i
 
@@ -79,8 +79,8 @@ class Player(Actor):
                     probe_result.move(self.letter_direction, block_list)
             # TODO: Punch animation.
 
-    def get_real_pos(self, base_x, base_y):
-        x_i, y_i = super().get_real_pos(base_x, base_y)
+    def calc_screen_pos(self):
+        x_i, y_i = super().calc_screen_pos()
         if self.status == 'Elevated':
             y_i -= 25
         return x_i, y_i
@@ -116,9 +116,9 @@ class Block(Actor):
             else:
                 return 'Ground_landing'
 
-    def get_real_pos(self, base_x, base_y):
-        x_i, y_i = super().get_real_pos(base_x, base_y)
-        if self.drop_clock >= 0:
+    def calc_screen_pos(self):
+        x_i, y_i = super().calc_screen_pos()
+        if self.drop_clock > 0:
             y_i -= 25
             y_i -= self.drop_clock
         return x_i, y_i

@@ -19,20 +19,17 @@ def main():
     graphics_dict, screen = initialize()  # Initialize graphics: graphics_dict hold all sprites with their names as keys
     draw_board(width, height, graphics_dict['tile'], screen)
 
-    base_x, base_y = 337, 222
-
     block_list = []
     falling_block = game_class.Block(width, height)
     player = game_class.Player(width, height)
 
     player_img = graphics_dict['blob_e']
-    player_sprite = player_img.get_rect(center=(base_x, base_y))
-    move_sprite_to(base_x, base_y, player_sprite, player_img, screen)
+    player_sprite = player_img.get_rect()
+    move_sprite_to(0, 0, player_sprite, player_img, screen)
 
     block_img = graphics_dict['pill_e']
-    block_sprite = block_img.get_rect(center=(base_x, base_y))
-    real_pos = falling_block.get_real_pos(base_x, base_y)
-    move_sprite_to(real_pos[0], real_pos[1], block_sprite, block_img, screen)
+    block_sprite = block_img.get_rect()
+    update_actor_pos(falling_block, block_sprite, block_img, screen)
 
     while True:
         draw_board(width, height, graphics_dict['tile'], screen)
@@ -40,16 +37,14 @@ def main():
         check_keyboard(player, block_list)
 
         player_img = graphics_dict[f'blob_{player.letter_direction}']
-        real_pos = player.get_real_pos(base_x, base_y)
-        move_sprite_to(real_pos[0], real_pos[1], player_sprite, player_img, screen)
+        update_actor_pos(player, player_sprite, player_img, screen)
 
         for _ in range(4):
             pygame.time.delay(33)
             falling_block = block_drop(falling_block, player, block_list)
 
             block_img = graphics_dict[f'pill_{falling_block.letter_direction}']
-            real_pos = falling_block.get_real_pos(base_x, base_y)
-            move_sprite_to(real_pos[0], real_pos[1], block_sprite, block_img, screen)
+            update_actor_pos(falling_block, block_sprite, block_img, screen)
 
 
 def check_keyboard(player, block_list):
@@ -68,8 +63,23 @@ def check_keyboard(player, block_list):
         player.move('w', block_list)
     elif key[pygame.K_SPACE]:
         player.push(block_list)
+    elif key[pygame.K_p]:
+        while True:
+            pygame.time.delay(150)
+            for event in pygame.event.get():  # Close nicely and display changes
+                if event.type == pygame.QUIT:
+                    sys.exit()
+            pygame.event.pump()
+            key = pygame.key.get_pressed()  # checking pressed keys
+            if key[pygame.K_p] or key[pygame.K_o]:
+                break
     elif key[pygame.K_q]:
         sys.exit()
+
+
+def update_actor_pos(actor, sprite, sprite_img, screen):
+    screen_pos = actor.calc_screen_pos()
+    move_sprite_to(screen_pos[0], screen_pos[1], sprite, sprite_img, screen)
 
 
 def block_drop(falling_block, player, block_list):
