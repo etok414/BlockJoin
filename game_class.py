@@ -19,19 +19,10 @@ class Actor:
     def move(self, movement_direction, block_list, can_jump=False):
         delta_x, delta_y = self.direction(movement_direction)
         moved_coors = (self.x_pos + delta_x, self.y_pos + delta_y)
-        probe_result = self.probe(moved_coors[0], moved_coors[1], block_list)
+        probe_result = probe(moved_coors[0], moved_coors[1], block_list, self.board_width, self.board_height)
 
         if probe_result and (probe_result == 'Empty' or can_jump):
             self.x_pos, self.y_pos = moved_coors
-
-    def probe(self, x_coor, y_coor, block_list):
-        """ Returns the block that occupies the space if it's occupied, 'Empty' if it's empty,
-        and None if it's outside the board """
-        if 0 <= x_coor < self.board_width and 0 <= y_coor < self.board_height:
-            for block in block_list:
-                if block.x_pos == x_coor and block.y_pos == y_coor:
-                    return block
-            return 'Empty'
 
     def calc_screen_pos(self):
         x_c = self.x_pos * 50
@@ -58,7 +49,7 @@ class Player(Actor):
             if self.carried_block:
                 self.status = 'Grounded'
                 return
-            if self.probe(self.x_pos, self.y_pos, block_list) != 'Empty':
+            if probe(self.x_pos, self.y_pos, block_list, self.board_width, self.board_height) != 'Empty':
                 self.status = 'Elevated'
             else:
                 self.status = 'Fine'
@@ -74,7 +65,8 @@ class Player(Actor):
             self.move(reversal_dict[self.letter_direction], block_list, turn_to_face=False)
         else:
             if self.status == 'Fine':
-                probe_result = self.probe(self.x_pos + direction[0], self.y_pos + direction[0], block_list)
+                probe_result = probe(self.x_pos + direction[0], self.y_pos + direction[0],
+                                     block_list, self.board_width, self.board_height)
                 if probe_result and probe_result != 'Empty':
                     probe_result.move(self.letter_direction, block_list)
             # TODO: Punch animation.
@@ -98,7 +90,7 @@ class Block(Actor):
         if self.y_pos is None:
             self.y_pos = random.randrange(1, self.board_height - 2)
         if self.letter_direction is None:
-            if bag is None:
+            if not bag:
                 bag = ['n', 'e', 's', 'w']
                 random.shuffle(bag)
             self.letter_direction = bag.pop(0)
@@ -107,7 +99,7 @@ class Block(Actor):
     def update_falling(self, player, block_list, clock_ticks=1):
         self.drop_clock -= clock_ticks
         if self.drop_clock <= 0:
-            if self.probe(self.x_pos, self.y_pos, block_list) != 'Empty':
+            if probe(self.x_pos, self.y_pos, block_list, self.board_width, self.board_height) != 'Empty':
                 return 'Failure'
             elif self.x_pos == player.x_pos and self.y_pos == player.y_pos:
                 if player.carried_block:
@@ -128,9 +120,11 @@ def ghosts(self):
     pass
 
 
-def gridlock_check(self):
-    pass
-
-
-def compare(self):
-    pass
+def probe(x_coor, y_coor, block_list, board_width, board_height):
+    """ Returns the block that occupies the space if it's occupied, 'Empty' if it's empty,
+    and None if it's outside the board """
+    if 0 <= x_coor < board_width and 0 <= y_coor < board_height:
+        for block in block_list:
+            if block.x_pos == x_coor and block.y_pos == y_coor:
+                return block
+        return 'Empty'

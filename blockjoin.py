@@ -40,11 +40,11 @@ def main():
         update_actor_pos(player, player_sprite, player_img, screen)
 
         for _ in range(4):
-            pygame.time.delay(33)
-            falling_block = block_drop(falling_block, player, block_list)
+            falling_block = block_drop(falling_block, player, block_list, 1)
 
             block_img = graphics_dict[f'pill_{falling_block.letter_direction}']
             update_actor_pos(falling_block, block_sprite, block_img, screen)
+            pygame.time.delay(33)
 
 
 def check_keyboard(player, block_list):
@@ -78,12 +78,18 @@ def check_keyboard(player, block_list):
 
 
 def update_actor_pos(actor, sprite, sprite_img, screen):
-    screen_pos = actor.calc_screen_pos()
-    move_sprite_to(screen_pos[0], screen_pos[1], sprite, sprite_img, screen)
+    screen_x_pos, screen_y_pos = actor.calc_screen_pos()
+    move_sprite_to(screen_x_pos, screen_y_pos, sprite, sprite_img, screen)
 
 
-def block_drop(falling_block, player, block_list):
-    drop_result = falling_block.update_falling(player, block_list)
+def gridlock_check(block_list, board_width, board_height):
+    for block in block_list:
+        probe_coors = block.x_pos + block.direction()[0], block.y_pos + block.direction()[1]
+        game_class.probe(probe_coors[0], probe_coors[1], block_list, board_width, board_height)
+
+
+def block_drop(falling_block, player, block_list, drop_ticks=1):
+    drop_result = falling_block.update_falling(player, block_list, drop_ticks)
 
     width, height = falling_block.board_width, falling_block.board_height
     bag, direction = falling_block.bag, falling_block.direction
@@ -94,11 +100,12 @@ def block_drop(falling_block, player, block_list):
         sys.exit()
     elif drop_result == 'Head_landing':
         player.carried_block = game_class.Block(width, height, bag, direction, x_pos, y_pos)
-        falling_block = game_class.Block(width, height, bag=bag)
+        return game_class.Block(width, height, bag=bag)
     elif drop_result == 'Ground_landing':
         block_list.append(game_class.Block(width, height, bag, direction, x_pos, y_pos))
-        falling_block = game_class.Block(width, height, bag=bag)
-    return falling_block
+        return game_class.Block(width, height, bag=bag)
+    else:
+        return falling_block
     # TODO: Make the dropping animations, and make the things land.
 
 
