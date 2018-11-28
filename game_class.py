@@ -1,13 +1,17 @@
 import random
+import pygame
 
 
-class Actor:
-    def __init__(self, board_width, board_height, direction, x_pos, y_pos):
+class Actor(pygame.sprite.Sprite):
+    def __init__(self, board_width, board_height, direction, x_pos, y_pos, image):
+        pygame.sprite.Sprite.__init__(self)
         self.x_pos = x_pos
         self.y_pos = y_pos
         self.letter_direction = direction
         self.board_width = board_width
         self.board_height = board_height
+        self.image = image
+        self.rect = self.image.get_rect()
 
     def direction(self, direction=None):
         """ Translate direction string n, e, w, s to direction vector i, j, -i, -j """
@@ -32,8 +36,9 @@ class Actor:
 
 
 class Player(Actor):
-    def __init__(self, board_width, board_height):
-        super().__init__(board_width, board_height, 'e', 0, 0)
+    def __init__(self, board_width, board_height, image):
+        super().__init__(board_width, board_height, 'e', 0, 0, image)
+
         self.status = 'Fine'
         # Status is 'Fine' if the actor can jump, 'Elevated' if it's atop a block, and 'Grounded' if it can't jump.
         # TODO: Status currently only serves to tell the animation if the player should be elevated.
@@ -59,7 +64,7 @@ class Player(Actor):
         if self.carried_block:
             block_list.append(Block(self.carried_block.board_width, self.carried_block.board_height,
                                     self.carried_block.bag, self.carried_block.direction,
-                                    self.carried_block.x_pos, self.carried_block.y_pos))
+                                    self.carried_block.x_pos, self.carried_block.y_pos, self.carried_block.image))
             self.carried_block = None
             reversal_dict = {'n': 's', 'e': 'w', 's': 'n', 'w': 'e'}
             self.move(reversal_dict[self.letter_direction], block_list, turn_to_face=False)
@@ -79,8 +84,8 @@ class Player(Actor):
 
 
 class Block(Actor):
-    def __init__(self, board_width, board_height, bag=None, direction=None, x_pos=None, y_pos=None):
-        super().__init__(board_width, board_height, direction, x_pos, y_pos)
+    def __init__(self, board_width, board_height, bag=None, direction=None, x_pos=None, y_pos=None, image=None):
+        super().__init__(board_width, board_height, direction, x_pos, y_pos, image)
         if self.x_pos is None and self.y_pos is None:
             self.drop_clock = 150
         else:

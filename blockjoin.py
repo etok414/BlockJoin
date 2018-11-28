@@ -20,31 +20,32 @@ def main():
     draw_board(width, height, graphics_dict['tile'], screen)
 
     block_list = []
-    falling_block = game_class.Block(width, height)
-    player = game_class.Player(width, height)
+    falling_block = game_class.Block(width, height, image=graphics_dict['pill_e'])
+    player = game_class.Player(width, height, graphics_dict['blob_e'])
 
-    player_img = graphics_dict['blob_e']
-    player_sprite = player_img.get_rect()
-    move_sprite_to(0, 0, player_sprite, player_img, screen)
-
-    block_img = graphics_dict['pill_e']
-    block_sprite = block_img.get_rect()
-    update_actor_pos(falling_block, block_sprite, block_img, screen)
+    # player_img = graphics_dict['blob_e']
+    # player_sprite = player_img.get_rect()
+    # move_sprite_to(0, 0, player.rect, player.image, screen)
+    update_actor_pos(player, screen)
+    update_actor_pos(falling_block, screen)
 
     while True:
         draw_board(width, height, graphics_dict['tile'], screen)
 
         check_keyboard(player, block_list)
 
-        player_img = graphics_dict[f'blob_{player.letter_direction}']
-        update_actor_pos(player, player_sprite, player_img, screen)
+        player.image = graphics_dict[f'blob_{player.letter_direction}']
+        update_actor_pos(player, screen)
 
         for _ in range(4):
             falling_block = block_drop(falling_block, player, block_list, 1)
+            falling_block = block_drop(falling_block, player, block_list)
 
-            block_img = graphics_dict[f'pill_{falling_block.letter_direction}']
-            update_actor_pos(falling_block, block_sprite, block_img, screen)
+            falling_block.image = graphics_dict[f'pill_{falling_block.letter_direction}']
+            update_actor_pos(falling_block,  screen)
             pygame.time.delay(33)
+#TODO Update via pygames sprite engine
+#TODO Put shadows under falling blocks
 
 
 def check_keyboard(player, block_list):
@@ -77,10 +78,9 @@ def check_keyboard(player, block_list):
         sys.exit()
 
 
-def update_actor_pos(actor, sprite, sprite_img, screen):
-    screen_x_pos, screen_y_pos = actor.calc_screen_pos()
-    move_sprite_to(screen_x_pos, screen_y_pos, sprite, sprite_img, screen)
-
+def update_actor_pos(actor, screen):
+    screen_pos = actor.calc_screen_pos()
+    move_sprite_to(screen_pos[0], screen_pos[1], actor.rect, actor.image, screen)
 
 def gridlock_check(block_list, board_width, board_height):
     for block in block_list:
@@ -94,16 +94,17 @@ def block_drop(falling_block, player, block_list, drop_ticks=1):
     width, height = falling_block.board_width, falling_block.board_height
     bag, direction = falling_block.bag, falling_block.direction
     x_pos, y_pos = falling_block.x_pos, falling_block.y_pos
+    image = falling_block.image
 
     if drop_result == 'Failure':
         print('Failure')
         sys.exit()
     elif drop_result == 'Head_landing':
-        player.carried_block = game_class.Block(width, height, bag, direction, x_pos, y_pos)
-        return game_class.Block(width, height, bag=bag)
+        player.carried_block = game_class.Block(width, height, bag, direction, x_pos, y_pos, image=image)
+        return game_class.Block(width, height, bag=bag, image=image)
     elif drop_result == 'Ground_landing':
-        block_list.append(game_class.Block(width, height, bag, direction, x_pos, y_pos))
-        return game_class.Block(width, height, bag=bag)
+        block_list.append(game_class.Block(width, height, bag, direction, x_pos, y_pos, image=image))
+        return game_class.Block(width, height, bag=bag, image=image)
     else:
         return falling_block
     # TODO: Make the dropping animations, and make the things land.
