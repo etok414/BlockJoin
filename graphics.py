@@ -30,13 +30,20 @@ def initialize():
     return graphics_dict, screen
 
 
-def draw_board(width, height, tile, screen):
+def draw_board(tile, screen):
     screen.fill((0, 0, 0))  # Black
-    for x_c in range(width):
-        for y_c in range(height):
-            x_i, y_i = x_c - y_c, (x_c + y_c) / 2
-            tile1 = tile.get_rect(center=(x_i * 50 + 400, y_i * 50 + 200))
-            screen.blit(tile, tile1)
+    for x_c in range(tile.board_width):
+        for y_c in range(tile.board_height):
+            # x_i, y_i = x_c - y_c, (x_c + y_c) / 2
+            tile.x_pos, tile.y_pos = x_c, y_c
+            update_actor_pos(tile, screen)
+            # tile1 = tile.get_rect(center=(x_i * 50 + 400, y_i * 50 + 200))
+            # screen.blit(tile, tile1)
+
+
+def update_actor_pos(actor, screen):
+    screen_pos = dict(zip(('x', 'y'), actor.calc_screen_pos()))
+    move_sprite_to(screen_pos['x'], screen_pos['y'], actor.rect, actor.image, screen)
 
 
 def move_sprite_to(x_i, y_i, sprite, sprite_img, screen):

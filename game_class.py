@@ -3,7 +3,7 @@ import pygame
 
 
 class Actor(pygame.sprite.Sprite):
-    def __init__(self, board_width, board_height, direction, x_pos, y_pos, image):
+    def __init__(self, board_width, board_height, direction='e', x_pos=0, y_pos=0, image=None):
         pygame.sprite.Sprite.__init__(self)
         self.x_pos = x_pos
         self.y_pos = y_pos

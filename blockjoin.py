@@ -1,7 +1,7 @@
 import sys
 import game_class
 import pygame
-from graphics import draw_board, initialize, move_sprite_to
+from graphics import draw_board, initialize, move_sprite_to, update_actor_pos
 
 """ Three coordinate systems are used: 
         * A cartesian keeping track of the position on the board
@@ -17,20 +17,21 @@ def main():
     width, height = 6, 6
     pygame.init()
     graphics_dict, screen = initialize()  # Initialize graphics: graphics_dict hold all sprites with their names as keys
-    draw_board(width, height, graphics_dict['tile'], screen)
+    # draw_board(width, height, graphics_dict['tile'], screen)
 
     block_list = []
     falling_block = game_class.Block(width, height, image=graphics_dict['pill_e'])
-    player = game_class.Player(width, height, graphics_dict['blob_e'])
+    player = game_class.Player(width, height, image=graphics_dict['blob_e'])
+    tile = game_class.Actor(width, height, image=graphics_dict['tile'])
 
     # player_img = graphics_dict['blob_e']
     # player_sprite = player_img.get_rect()
     # move_sprite_to(0, 0, player.rect, player.image, screen)
-    update_actor_pos(player, screen)
+    update_actor_pos(player, screen)  # Is these two lines necessary?
     update_actor_pos(falling_block, screen)
 
     while True:
-        draw_board(width, height, graphics_dict['tile'], screen)
+        draw_board(tile, screen)
 
         check_keyboard(player, block_list)
 
@@ -77,10 +78,6 @@ def check_keyboard(player, block_list):
     elif key[pygame.K_q]:
         sys.exit()
 
-
-def update_actor_pos(actor, screen):
-    screen_pos = actor.calc_screen_pos()
-    move_sprite_to(screen_pos[0], screen_pos[1], actor.rect, actor.image, screen)
 
 def gridlock_check(block_list, board_width, board_height):
     for block in block_list:
