@@ -25,7 +25,7 @@ class Actor(pygame.sprite.Sprite):
         moved_coors = (self.x_pos + delta_x, self.y_pos + delta_y)
         probe_result = probe(moved_coors[0], moved_coors[1], block_list, self.board_width, self.board_height)
 
-        if probe_result and (probe_result == 'Empty' or can_jump):
+        if probe_result is not None and (probe_result is False or can_jump):
             self.x_pos, self.y_pos = moved_coors
 
     def calc_screen_pos(self):
@@ -54,7 +54,7 @@ class Player(Actor):
             if self.carried_block:
                 self.status = 'Grounded'
                 return
-            if probe(self.x_pos, self.y_pos, block_list, self.board_width, self.board_height) != 'Empty':
+            if probe(self.x_pos, self.y_pos, block_list, self.board_width, self.board_height):
                 self.status = 'Elevated'
             else:
                 self.status = 'Fine'
@@ -72,7 +72,7 @@ class Player(Actor):
             if self.status == 'Fine':
                 probe_result = probe(self.x_pos + direction[0], self.y_pos + direction[0],
                                      block_list, self.board_width, self.board_height)
-                if probe_result and probe_result != 'Empty':
+                if probe_result:
                     probe_result.move(self.letter_direction, block_list)
             # TODO: Punch animation.
 
@@ -104,7 +104,7 @@ class Block(Actor):
     def update_falling(self, player, block_list, clock_ticks=1):
         self.drop_clock -= clock_ticks
         if self.drop_clock <= 0:
-            if probe(self.x_pos, self.y_pos, block_list, self.board_width, self.board_height) != 'Empty':
+            if probe(self.x_pos, self.y_pos, block_list, self.board_width, self.board_height):
                 return 'Failure'
             elif self.x_pos == player.x_pos and self.y_pos == player.y_pos:
                 if player.carried_block:
@@ -126,10 +126,12 @@ def ghosts(self):
 
 
 def probe(x_coor, y_coor, block_list, board_width, board_height):
-    """ Returns the block that occupies the space if it's occupied, 'Empty' if it's empty,
+    """ Returns the block that occupies the tested space if it's occupied, returns False if it's empty,
     and None if it's outside the board """
     if 0 <= x_coor < board_width and 0 <= y_coor < board_height:
         for block in block_list:
             if block.x_pos == x_coor and block.y_pos == y_coor:
                 return block
-        return 'Empty'
+        return False
+    else:
+        return None

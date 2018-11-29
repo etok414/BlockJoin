@@ -79,10 +79,26 @@ def check_keyboard(player, block_list):
         sys.exit()
 
 
-def gridlock_check(block_list, board_width, board_height):
+def full_board_gridlock_check(block_list, board_width, board_height):
     for block in block_list:
-        probe_coors = block.x_pos + block.direction()[0], block.y_pos + block.direction()[1]
-        game_class.probe(probe_coors[0], probe_coors[1], block_list, board_width, board_height)
+        gridlock_or_false = gridlock_check([block], block_list, board_width, board_height)
+        if gridlock_or_false:
+            pass  # TODO: Getting rid of the blocks involved in the gridlock.
+
+
+def gridlock_check(chain, block_list, board_width, board_height):
+    latest_block = chain[-1]
+    next_x = (latest_block.x_pos + latest_block.direction()[0]) % board_width
+    next_y = (latest_block.y_pos + latest_block.direction()[1]) % board_height
+    next_block = game_class.probe(next_x, next_y, block_list, board_width, board_height)
+    if not next_block:
+        return False
+    for num, block in enumerate(chain):
+        if next_block.x_pos == block.x_pos and next_block.y_pos == block.y_pos:
+            return chain[num:] # This is the gridlock it returns
+    chain.append(next_block)
+    gridlock_or_false = gridlock_check(chain, block_list, board_width, board_height)
+    return gridlock_or_false
 
 
 def block_drop(falling_block, player, block_list, drop_ticks=1):
