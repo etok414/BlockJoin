@@ -1,7 +1,7 @@
 import sys
 import game_class
 import pygame
-from graphics import draw_board, initialize, move_sprite_to, update_actor_pos
+from graphics import draw_board, initialize, move_sprite_to, update_thing_pos
 
 """ Three coordinate systems are used: 
         * A cartesian keeping track of the position on the board
@@ -22,13 +22,13 @@ def main():
     block_list = []
     falling_block = game_class.Block(width, height, image=graphics_dict['pill_e'])
     player = game_class.Player(width, height, image=graphics_dict['blob_e'])
-    tile = game_class.Actor(width, height, image=graphics_dict['tile'])
+    tile = game_class.Thing(0, 0, image=graphics_dict['tile'])
 
     # player_img = graphics_dict['blob_e']
     # player_sprite = player_img.get_rect()
     # move_sprite_to(0, 0, player.rect, player.image, screen)
-    update_actor_pos(player, screen)  # Is these two lines necessary?
-    update_actor_pos(falling_block, screen)
+    update_thing_pos(player, screen)  # Is these two lines necessary?
+    update_thing_pos(falling_block, screen)
 
     while True:
         draw_board(tile, screen)
@@ -36,14 +36,14 @@ def main():
         check_keyboard(player, block_list)
 
         player.image = graphics_dict[f'blob_{player.letter_direction}']
-        update_actor_pos(player, screen)
+        update_thing_pos(player, screen)
 
         for _ in range(4):
             falling_block = block_drop(falling_block, player, block_list, 1)
             falling_block = block_drop(falling_block, player, block_list)
 
             falling_block.image = graphics_dict[f'pill_{falling_block.letter_direction}']
-            update_actor_pos(falling_block,  screen)
+            update_thing_pos(falling_block, screen)
             pygame.time.delay(33)
 #TODO Update via pygames sprite engine
 #TODO Put shadows under falling blocks
@@ -79,15 +79,16 @@ def check_keyboard(player, block_list):
         sys.exit()
 
 
-def full_board_gridlock_check(block_list, board_width, board_height):
+def full_board_loop_check(block_list):
     for block in block_list:
-        gridlock_or_false = gridlock_check([block], block_list, board_width, board_height)
-        if gridlock_or_false:
+        loop_or_false = loop_check([block], block_list)
+        if loop_or_false:
             pass  # TODO: Getting rid of the blocks involved in the gridlock.
 
 
-def gridlock_check(chain, block_list, board_width, board_height):
+def loop_check(chain, block_list):
     latest_block = chain[-1]
+    board_width, board_height = latest_block.board_width, latest_block.board_height
     next_x = (latest_block.x_pos + latest_block.direction()[0]) % board_width
     next_y = (latest_block.y_pos + latest_block.direction()[1]) % board_height
     next_block = game_class.probe(next_x, next_y, block_list, board_width, board_height)
@@ -97,8 +98,8 @@ def gridlock_check(chain, block_list, board_width, board_height):
         if next_block.x_pos == block.x_pos and next_block.y_pos == block.y_pos:
             return chain[num:] # This is the gridlock it returns
     chain.append(next_block)
-    gridlock_or_false = gridlock_check(chain, block_list, board_width, board_height)
-    return gridlock_or_false
+    loop_or_false = loop_check(chain, block_list)
+    return loop_or_false
 
 
 def block_drop(falling_block, player, block_list, drop_ticks=1):

@@ -2,16 +2,27 @@ import random
 import pygame
 
 
-class Actor(pygame.sprite.Sprite):
-    def __init__(self, board_width, board_height, direction='e', x_pos=0, y_pos=0, image=None):
-        pygame.sprite.Sprite.__init__(self)
+class Thing(pygame.sprite.Sprite):
+    def __init__(self, x_pos=0, y_pos=0, image=None):
+        super().__init__(self)
         self.x_pos = x_pos
         self.y_pos = y_pos
+        self.image = image
+        self.rect = self.image.get_rect()
+
+    def calc_screen_pos(self):
+        x_c = self.x_pos * 50
+        y_c = -self.y_pos * 50
+        x_i, y_i = x_c - y_c, (x_c + y_c) / 2
+        return x_i, y_i
+
+
+class Actor(Thing):
+    def __init__(self, board_width, board_height, direction='e', x_pos=0, y_pos=0, image=None):
+        super().__init__(x_pos, y_pos, image)
         self.letter_direction = direction
         self.board_width = board_width
         self.board_height = board_height
-        self.image = image
-        self.rect = self.image.get_rect()
 
     def direction(self, direction=None):
         """ Translate direction string n, e, w, s to direction vector i, j, -i, -j """
@@ -27,12 +38,6 @@ class Actor(pygame.sprite.Sprite):
 
         if probe_result is not None and (probe_result is False or can_jump):
             self.x_pos, self.y_pos = moved_coors
-
-    def calc_screen_pos(self):
-        x_c = self.x_pos * 50
-        y_c = -self.y_pos * 50
-        x_i, y_i = x_c - y_c, (x_c + y_c) / 2
-        return x_i, y_i
 
 
 class Player(Actor):
@@ -60,17 +65,17 @@ class Player(Actor):
                 self.status = 'Fine'
 
     def push(self, block_list):
-        direction = self.direction()
         if self.carried_block:
             block_list.append(Block(self.carried_block.board_width, self.carried_block.board_height,
-                                    self.carried_block.bag, self.carried_block.direction,
+                                    self.carried_block.bag, self.carried_block.letter_direction,
                                     self.carried_block.x_pos, self.carried_block.y_pos, self.carried_block.image))
             self.carried_block = None
             reversal_dict = {'n': 's', 'e': 'w', 's': 'n', 'w': 'e'}
             self.move(reversal_dict[self.letter_direction], block_list, turn_to_face=False)
         else:
-            if self.status == 'Fine':
-                probe_result = probe(self.x_pos + direction[0], self.y_pos + direction[0],
+            delta_x, delta_y = self.direction()
+            if not probe(self.x_pos, self.y_pos, block_list, self.board_width, self.board_height):
+                probe_result = probe(self.x_pos + delta_x, self.y_pos + delta_y,
                                      block_list, self.board_width, self.board_height)
                 if probe_result:
                     probe_result.move(self.letter_direction, block_list)
