@@ -32,8 +32,8 @@ def initialize():
 
 def draw_board(tile, screen):
     screen.fill((0, 0, 0))  # Black
-    for x_c in range(tile.board_width):
-        for y_c in range(tile.board_height):
+    for x_c in range(6):
+        for y_c in range(6):
             # x_i, y_i = x_c - y_c, (x_c + y_c) / 2
             tile.x_pos, tile.y_pos = x_c, y_c
             update_thing_pos(tile, screen)
