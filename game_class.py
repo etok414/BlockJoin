@@ -56,7 +56,9 @@ class Player(Actor):
                 self.carried_block.letter_direction = movement_direction
         else:
             super().move(movement_direction, block_list, can_jump=False if self.carried_block else True)
-            if self.carried_block:
+            if self.carried_block and turn_to_face:
+                self.carried_block.x_pos = self.x_pos
+                self.carried_block.y_pos = self.y_pos
                 self.status = 'Grounded'
                 return
             if probe(self.x_pos, self.y_pos, block_list, self.board_width, self.board_height):
@@ -66,10 +68,8 @@ class Player(Actor):
 
     def push(self, block_list):
         if self.carried_block:
-            block_list.append(Block(self.carried_block.board_width, self.carried_block.board_height,
-                                    self.carried_block.bag, self.carried_block.letter_direction,
-                                    self.carried_block.x_pos, self.carried_block.y_pos, self.carried_block.image))
-            self.carried_block = None
+            self.carried_block.drop_clock = 0
+            block_list.append(self.carried_block)
             reversal_dict = {'n': 's', 'e': 'w', 's': 'n', 'w': 'e'}
             self.move(reversal_dict[self.letter_direction], block_list, turn_to_face=False)
         else:

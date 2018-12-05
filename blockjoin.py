@@ -40,18 +40,22 @@ def main():
 
         check_keyboard(player, block_list)
 
+        for block in block_list:
+            update_thing_pos(block, screen)
         player.image = graphics_dict[f'blob_{player.letter_direction}']
         update_thing_pos(player, screen)
+        if player.carried_block:
+            player.carried_block.image = graphics_dict[f'pill_{player.carried_block.letter_direction}']
+            update_thing_pos(player.carried_block, screen)
 
-        for _ in range(4):
-            falling_block = block_drop(falling_block, player, block_list, 1)
-            falling_block = block_drop(falling_block, player, block_list)
+        falling_block = block_drop(falling_block, player, block_list, 4)
+        falling_block = block_drop(falling_block, player, block_list)
 
-            falling_block.image = graphics_dict[f'pill_{falling_block.letter_direction}']
-            update_thing_pos(falling_block, screen)
-            pygame.time.delay(33)
-#TODO Update via pygames sprite engine
-#TODO Put shadows under falling blocks
+        falling_block.image = graphics_dict[f'pill_{falling_block.letter_direction}']
+        update_thing_pos(falling_block, screen)
+        pygame.time.delay(150)
+# TODO Update via pygame's sprite engine
+# TODO Put shadows under falling blocks
 
 
 def check_keyboard(player, block_list):
@@ -70,6 +74,7 @@ def check_keyboard(player, block_list):
         player.move('w', block_list)
     elif key[pygame.K_SPACE]:
         player.push(block_list)
+        player.carried_block = None
     elif key[pygame.K_p]:
         while True:
             pygame.time.delay(150)
@@ -119,10 +124,13 @@ def block_drop(falling_block, player, block_list, drop_ticks=1):
         print('Failure')
         sys.exit()
     elif drop_result == 'Head_landing':
-        player.carried_block = game_class.Block(width, height, bag, direction, x_pos, y_pos, image=image)
+        # player.carried_block = game_class.Block(width, height, bag, direction, x_pos, y_pos, image=image)
+        player.carried_block = falling_block
+        player.carried_block.drop_clock = 1
         return game_class.Block(width, height, bag=bag, image=image)
     elif drop_result == 'Ground_landing':
-        block_list.append(game_class.Block(width, height, bag, direction, x_pos, y_pos, image=image))
+        # block_list.append(game_class.Block(width, height, bag, direction, x_pos, y_pos, image=image))
+        block_list.append(falling_block)
         return game_class.Block(width, height, bag=bag, image=image)
     else:
         return falling_block

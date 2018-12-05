@@ -42,8 +42,8 @@ def draw_board(tile, screen):
 
 
 def update_thing_pos(thing, screen):
-    screen_pos = dict(zip(('x', 'y'), thing.calc_screen_pos()))
-    move_sprite_to(screen_pos['x'], screen_pos['y'], thing.rect, thing.image, screen)
+    screen_x_pos, screen_y_pos = thing.calc_screen_pos()
+    move_sprite_to(screen_x_pos, screen_y_pos, thing.rect, thing.image, screen)
 
 
 def move_sprite_to(x_i, y_i, sprite, sprite_img, screen):
@@ -55,7 +55,7 @@ def move_sprite_to(x_i, y_i, sprite, sprite_img, screen):
 def main():
     """ Just for testing purposes """
     graphics_dict, screen = initialize()
-    draw_board(6, 6, graphics_dict['tile'], screen)
+    draw_board(graphics_dict['tile'], screen)
     while True:
         pilln = graphics_dict['pillN']
         pille = graphics_dict['pillE']
