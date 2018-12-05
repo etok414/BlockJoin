@@ -22,16 +22,21 @@ def main():
     block_list = []
     falling_block = game_class.Block(width, height, image=graphics_dict['pill_e'])
     player = game_class.Player(width, height, image=graphics_dict['blob_e'])
-    tile = game_class.Thing(0, 0, image=graphics_dict['tile'])
+    board = game_class.Thing(-2, 0, image=graphics_dict['board'])
+
+    # tile = game_class.Thing(0, 0, image=graphics_dict['tile'])
 
     # player_img = graphics_dict['blob_e']
     # player_sprite = player_img.get_rect()
     # move_sprite_to(0, 0, player.rect, player.image, screen)
+    update_thing_pos(board, screen)
+    # board = get_rect(center=(x_i * 50 + 400, y_i * 50 + 200))
     update_thing_pos(player, screen)  # Is these two lines necessary?
     update_thing_pos(falling_block, screen)
 
     while True:
-        draw_board(tile, screen)
+        # draw_board(tile, screen)
+        update_thing_pos(board, screen)
 
         check_keyboard(player, block_list)
 
