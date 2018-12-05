@@ -22,7 +22,7 @@ def main():
     block_list = []
     falling_block = game_class.Block(width, height, image=graphics_dict['pill_e'])
     player = game_class.Player(width, height, image=graphics_dict['blob_e'])
-    board = game_class.Thing(-2, 0, image=graphics_dict['board'])
+    board = game_class.Thing(-2, 1, image=graphics_dict['board'])
 
     # tile = game_class.Thing(0, 0, image=graphics_dict['tile'])
 
@@ -34,11 +34,16 @@ def main():
     update_thing_pos(player, screen)  # Is these two lines necessary?
     update_thing_pos(falling_block, screen)
 
+    counter = 0
     while True:
         # draw_board(tile, screen)
-        update_thing_pos(board, screen)
+        screen.fill((0, 0, 0))
 
-        check_keyboard(player, block_list)
+        if counter >= 3:
+            check_keyboard(player, block_list)
+        counter = (counter + 1) % 4
+
+        update_thing_pos(board, screen)
 
         for block in block_list:
             update_thing_pos(block, screen)
@@ -48,13 +53,14 @@ def main():
             player.carried_block.image = graphics_dict[f'pill_{player.carried_block.letter_direction}']
             update_thing_pos(player.carried_block, screen)
 
-        falling_block = block_drop(falling_block, player, block_list, 4)
+        falling_block = block_drop(falling_block, player, block_list,1)
         falling_block = block_drop(falling_block, player, block_list)
 
         falling_block.image = graphics_dict[f'pill_{falling_block.letter_direction}']
         update_thing_pos(falling_block, screen)
-        pygame.time.delay(150)
-# TODO Update via pygame's sprite engine
+        pygame.display.flip()
+        pygame.time.delay(33)
+# TODO The board have to be drawn as sprite tiles in order to get shadows right
 # TODO Put shadows under falling blocks
 
 

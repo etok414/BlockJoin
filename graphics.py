@@ -49,7 +49,7 @@ def update_thing_pos(thing, screen):
 def move_sprite_to(x_i, y_i, sprite, sprite_img, screen):
     sprite.left, sprite.top = 115 + x_i, 280 + y_i
     screen.blit(sprite_img, sprite)
-    pygame.display.flip()
+    # pygame.display.flip()
 
 
 def main():
