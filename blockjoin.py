@@ -34,6 +34,8 @@ def main():
     update_thing_pos(player, screen)  # Is these two lines necessary?
     update_thing_pos(falling_block, screen)
 
+    shadow_tile = game_class.Thing(image=graphics_dict['tile_shadow1'])  # TODO: Properly implement shadows.
+
     counter = 0
     while True:
         # draw_board(tile, screen)
@@ -45,6 +47,12 @@ def main():
 
         update_thing_pos(board, screen)
 
+        # TODO: Properly implement shadows.
+        shadow_tile.x_pos, shadow_tile.y_pos = falling_block.x_pos, falling_block.y_pos
+        shadow_tile.image = graphics_dict[f'tile_shadow{5-int(falling_block.drop_clock/30)}']
+        update_thing_pos(shadow_tile, screen)
+        # TODO: Properly implement shadows.
+
         for block in block_list:
             update_thing_pos(block, screen)
         player.image = graphics_dict[f'blob_{player.letter_direction}']
@@ -53,11 +61,12 @@ def main():
             player.carried_block.image = graphics_dict[f'pill_{player.carried_block.letter_direction}']
             update_thing_pos(player.carried_block, screen)
 
-        falling_block = block_drop(falling_block, player, block_list,1)
-        falling_block = block_drop(falling_block, player, block_list)
-
+        falling_block = block_drop(falling_block, player, block_list, 1)
         falling_block.image = graphics_dict[f'pill_{falling_block.letter_direction}']
         update_thing_pos(falling_block, screen)
+
+        full_board_loop_check(block_list)
+
         pygame.display.flip()
         pygame.time.delay(33)
 # TODO The board have to be drawn as sprite tiles in order to get shadows right
@@ -133,6 +142,7 @@ def block_drop(falling_block, player, block_list, drop_ticks=1):
         # player.carried_block = game_class.Block(width, height, bag, direction, x_pos, y_pos, image=image)
         player.carried_block = falling_block
         player.carried_block.drop_clock = 1
+        player.carried_block.letter_direction = player.letter_direction
         return game_class.Block(width, height, bag=bag, image=image)
     elif drop_result == 'Ground_landing':
         # block_list.append(game_class.Block(width, height, bag, direction, x_pos, y_pos, image=image))

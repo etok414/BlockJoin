@@ -49,14 +49,15 @@ class Player(Actor):
         # TODO: Status currently only serves to tell the animation if the player should be elevated.
         self.carried_block = False
 
-    def move(self, movement_direction, block_list, turn_to_face=True):
-        if self.letter_direction != movement_direction and turn_to_face:
+    def move(self, movement_direction, block_list, back_jump=False):
+        if self.letter_direction != movement_direction and not back_jump:
             self.letter_direction = movement_direction
             if self.carried_block:
                 self.carried_block.letter_direction = movement_direction
         else:
-            super().move(movement_direction, block_list, can_jump=False if self.carried_block else True)
-            if self.carried_block and turn_to_face:
+            super().move(movement_direction, block_list,
+                         can_jump=False if self.carried_block and not back_jump else True)
+            if self.carried_block and not back_jump:
                 self.carried_block.x_pos = self.x_pos
                 self.carried_block.y_pos = self.y_pos
                 self.status = 'Grounded'
@@ -71,7 +72,7 @@ class Player(Actor):
             self.carried_block.drop_clock = 0
             block_list.append(self.carried_block)
             reversal_dict = {'n': 's', 'e': 'w', 's': 'n', 'w': 'e'}
-            self.move(reversal_dict[self.letter_direction], block_list, turn_to_face=False)
+            self.move(reversal_dict[self.letter_direction], block_list, back_jump=True)
         else:
             delta_x, delta_y = self.direction()
             if not probe(self.x_pos, self.y_pos, block_list, self.board_width, self.board_height):
@@ -92,7 +93,7 @@ class Block(Actor):
     def __init__(self, board_width, board_height, bag=None, direction=None, x_pos=None, y_pos=None, image=None):
         super().__init__(board_width, board_height, direction, x_pos, y_pos, image)
         if self.x_pos is None and self.y_pos is None:
-            self.drop_clock = 150
+            self.drop_clock = 149
         else:
             self.drop_clock = 0
         if self.x_pos is None:
