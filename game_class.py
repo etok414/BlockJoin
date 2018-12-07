@@ -16,6 +16,9 @@ class Thing(pygame.sprite.Sprite):
         x_i, y_i = x_c - y_c, (x_c + y_c) / 2
         return x_i, y_i
 
+    def put_here(self, x, y):
+        self.x_pos, self.y_pos = x, y
+
 
 class Actor(Thing):
     def __init__(self, board_width, board_height, direction='e', x_pos=0, y_pos=0, image=None):
@@ -81,6 +84,7 @@ class Player(Actor):
                 if probe_result:
                     probe_result.move(self.letter_direction, block_list)
             # TODO: Punch animation.
+            # TODO: Check line above. It says "unresolved attribute error"
 
     def calc_screen_pos(self):
         x_i, y_i = super().calc_screen_pos()

@@ -1,6 +1,7 @@
 import os
 import sys
 import pygame
+import game_class
 
 
 def initialize():
@@ -30,15 +31,18 @@ def initialize():
     return graphics_dict, screen
 
 
-def draw_board(tile, screen):
+def draw_board(screen, graphics_dict):
+    # TODO Is it necessary to pass in screen if drawing is delegated to board_tile_group(screen) later?
     screen.fill((0, 0, 0))  # Black
+    board_tile_group = pygame.sprite.Group()
     for x_c in range(6):
         for y_c in range(6):
-            # x_i, y_i = x_c - y_c, (x_c + y_c) / 2
-            tile.x_pos, tile.y_pos = x_c, y_c
+            tile = game_class.Thing(6, 6, image=graphics_dict['tile'])
+            tile.put_here(x_c, y_c)
             update_thing_pos(tile, screen)
-            # tile1 = tile.get_rect(center=(x_i * 50 + 400, y_i * 50 + 200))
-            # screen.blit(tile, tile1)
+            board_tile_group.add(tile)
+
+    return board_tile_group
 
 
 def update_thing_pos(thing, screen):
@@ -54,22 +58,11 @@ def move_sprite_to(x_i, y_i, sprite, sprite_img, screen):
 
 def main():
     """ Just for testing purposes """
-    graphics_dict, screen = initialize()
-    draw_board(graphics_dict['tile'], screen)
-    while True:
-        pilln = graphics_dict['pillN']
-        pille = graphics_dict['pillE']
-        pillw = graphics_dict['pillW']
-        pills = graphics_dict['pillS']
-        pill_n = pilln.get_rect(center=(0 * 50 + 400, 3 * 50 + 200))
-        pill_e = pille.get_rect(center=(2 * 50 + 400, 2 * 50 + 200))
-        pill_w = pillw.get_rect(center=(3 * 49 + 400, 3 * 41 + 200))
-        pill_s = pills.get_rect(center=(1 * 60 + 400, 2 * 55 + 200))
-        screen.blit(pilln, pill_n)
-        screen.blit(pille, pill_e)
-        screen.blit(pillw, pill_w)
-        screen.blit(pills, pill_s)
+    pass
+    # graphics_dict, screen = initialize()
+    # width, height = 6, 6
 
+    while True:
         for event in pygame.event.get():  # Close nicely and display changes
             if event.type == pygame.QUIT:
                 sys.exit()

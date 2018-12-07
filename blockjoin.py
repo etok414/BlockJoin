@@ -1,51 +1,29 @@
 import sys
 import game_class
 import pygame
-from graphics import draw_board, initialize, move_sprite_to, update_thing_pos
-
-""" Three coordinate systems are used: 
-        * A cartesian keeping track of the position on the board
-        * A cartesian blown up to fit the screen
-        * An isometric to position sprites in 2.5D
-"""
-
-
-# TODO Merge the last two coordinate systems. Blowing up and transforming to isometric should be one process
+from graphics import draw_board, initialize, update_thing_pos
 
 
 def main():
     width, height = 6, 6
     pygame.init()
     graphics_dict, screen = initialize()  # Initialize graphics: graphics_dict hold all sprites with their names as keys
-    # draw_board(width, height, graphics_dict['tile'], screen)
+    board_tile_group = draw_board(screen, graphics_dict)
 
     block_list = []
     falling_block = game_class.Block(width, height, image=graphics_dict['pill_e'])
     player = game_class.Player(width, height, image=graphics_dict['blob_e'])
-    board = game_class.Thing(-2, 1, image=graphics_dict['board'])
-
-    # tile = game_class.Thing(0, 0, image=graphics_dict['tile'])
-
-    # player_img = graphics_dict['blob_e']
-    # player_sprite = player_img.get_rect()
-    # move_sprite_to(0, 0, player.rect, player.image, screen)
-    update_thing_pos(board, screen)
-    # board = get_rect(center=(x_i * 50 + 400, y_i * 50 + 200))
-    update_thing_pos(player, screen)  # Is these two lines necessary?
-    update_thing_pos(falling_block, screen)
 
     shadow_tile = game_class.Thing(image=graphics_dict['tile_shadow1'])  # TODO: Properly implement shadows.
 
     counter = 0
     while True:
-        # draw_board(tile, screen)
         screen.fill((0, 0, 0))
+        board_tile_group.draw(screen)
 
         if counter >= 3:
             check_keyboard(player, block_list)
         counter = (counter + 1) % 4
-
-        update_thing_pos(board, screen)
 
         # TODO: Properly implement shadows.
         shadow_tile.x_pos, shadow_tile.y_pos = falling_block.x_pos, falling_block.y_pos
@@ -69,8 +47,6 @@ def main():
 
         pygame.display.flip()
         pygame.time.delay(33)
-# TODO The board have to be drawn as sprite tiles in order to get shadows right
-# TODO Put shadows under falling blocks
 
 
 def check_keyboard(player, block_list):
@@ -121,7 +97,7 @@ def loop_check(chain, block_list):
         return False
     for num, block in enumerate(chain):
         if next_block.x_pos == block.x_pos and next_block.y_pos == block.y_pos:
-            return chain[num:] # This is the gridlock it returns
+            return chain[num:]  # This is the gridlock it returns
     chain.append(next_block)
     loop_or_false = loop_check(chain, block_list)
     return loop_or_false
@@ -150,7 +126,6 @@ def block_drop(falling_block, player, block_list, drop_ticks=1):
         return game_class.Block(width, height, bag=bag, image=image)
     else:
         return falling_block
-    # TODO: Make the dropping animations, and make the things land.
 
 
 if __name__ == '__main__':
