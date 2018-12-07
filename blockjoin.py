@@ -13,7 +13,6 @@ def main():
     block_list = []
     falling_block = game_class.Block(width, height, image=graphics_dict['pill_e'])
     player = game_class.Player(width, height, image=graphics_dict['blob_e'])
-
     shadow_tile = game_class.Thing(image=graphics_dict['tile_shadow1'])
 
     counter = 0

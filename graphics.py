@@ -45,14 +45,9 @@ def draw_board(screen, graphics_dict):
 
 
 def update_thing_pos(thing, screen):
-    screen_x_pos, screen_y_pos = thing.calc_screen_pos()
-    move_sprite_to(screen_x_pos, screen_y_pos, thing.rect, thing.image, screen)
-
-
-def move_sprite_to(x_i, y_i, sprite, sprite_img, screen):
-    sprite.centerx, sprite.centery = 100 + x_i, 300 + y_i
-    screen.blit(sprite_img, sprite)
-    # pygame.display.flip()
+    x_i, y_i = thing.calc_screen_pos()
+    thing.rect.centerx, thing.rect.centery = 100 + x_i, 300 + y_i
+    screen.blit(thing.image, thing.rect)
 
 
 def main():
