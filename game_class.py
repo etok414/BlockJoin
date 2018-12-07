@@ -16,7 +16,7 @@ class Thing(pygame.sprite.Sprite):
         x_i, y_i = x_c - y_c, (x_c + y_c) / 2
         return x_i, y_i
 
-    def put_here(self, x, y):
+    def place_here(self, x, y):
         self.x_pos, self.y_pos = x, y
 
 
@@ -34,7 +34,7 @@ class Actor(Thing):
 
         return {'n': (0, 1), 'e': (1, 0), 'w': (-1, 0), 's': (0, -1)}[direction]
 
-    def move(self, movement_direction, block_list, can_jump=False):
+    def step(self, movement_direction, block_list, can_jump=False):
         delta_x, delta_y = self.direction(movement_direction)
         moved_coors = (self.x_pos + delta_x, self.y_pos + delta_y)
         probe_result = probe(moved_coors[0], moved_coors[1], block_list, self.board_width, self.board_height)
@@ -52,13 +52,13 @@ class Player(Actor):
         # TODO: Status currently only serves to tell the animation if the player should be elevated.
         self.carried_block = False
 
-    def move(self, movement_direction, block_list, back_jump=False):
+    def step(self, movement_direction, block_list, back_jump=False):
         if self.letter_direction != movement_direction and not back_jump:
             self.letter_direction = movement_direction
             if self.carried_block:
                 self.carried_block.letter_direction = movement_direction
         else:
-            super().move(movement_direction, block_list,
+            super().step(movement_direction, block_list,
                          can_jump=False if self.carried_block and not back_jump else True)
             if self.carried_block and not back_jump:
                 self.carried_block.x_pos = self.x_pos
@@ -75,14 +75,14 @@ class Player(Actor):
             self.carried_block.drop_clock = 0
             block_list.append(self.carried_block)
             reversal_dict = {'n': 's', 'e': 'w', 's': 'n', 'w': 'e'}
-            self.move(reversal_dict[self.letter_direction], block_list, back_jump=True)
+            self.step(reversal_dict[self.letter_direction], block_list, back_jump=True)
         else:
             delta_x, delta_y = self.direction()
             if not probe(self.x_pos, self.y_pos, block_list, self.board_width, self.board_height):
                 probe_result = probe(self.x_pos + delta_x, self.y_pos + delta_y,
                                      block_list, self.board_width, self.board_height)
                 if probe_result:
-                    probe_result.move(self.letter_direction, block_list)
+                    probe_result.step(self.letter_direction, block_list)
             # TODO: Punch animation.
             # TODO: Check line above. It says "unresolved attribute error"
 

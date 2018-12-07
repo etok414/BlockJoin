@@ -14,7 +14,7 @@ def main():
     falling_block = game_class.Block(width, height, image=graphics_dict['pill_e'])
     player = game_class.Player(width, height, image=graphics_dict['blob_e'])
 
-    shadow_tile = game_class.Thing(image=graphics_dict['tile_shadow1'])  # TODO: Properly implement shadows.
+    shadow_tile = game_class.Thing(image=graphics_dict['tile_shadow1'])
 
     counter = 0
     while True:
@@ -33,6 +33,7 @@ def main():
 
         for block in block_list:
             update_thing_pos(block, screen)
+
         player.image = graphics_dict[f'blob_{player.letter_direction}']
         update_thing_pos(player, screen)
         if player.carried_block:
@@ -56,13 +57,13 @@ def check_keyboard(player, block_list):
     pygame.event.pump()
     key = pygame.key.get_pressed()  # checking pressed keys
     if key[pygame.K_w]:
-        player.move('n', block_list)
+        player.step('n', block_list)
     elif key[pygame.K_d]:
-        player.move('e', block_list)
+        player.step('e', block_list)
     elif key[pygame.K_s]:
-        player.move('s', block_list)
+        player.step('s', block_list)
     elif key[pygame.K_a]:
-        player.move('w', block_list)
+        player.step('w', block_list)
     elif key[pygame.K_SPACE]:
         player.push(block_list)
         player.carried_block = None

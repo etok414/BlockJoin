@@ -37,8 +37,7 @@ def draw_board(screen, graphics_dict):
     board_tile_group = pygame.sprite.Group()
     for x_c in range(6):
         for y_c in range(6):
-            tile = game_class.Thing(6, 6, image=graphics_dict['tile'])
-            tile.put_here(x_c, y_c)
+            tile = game_class.Thing(x_c, y_c, image=graphics_dict['tile'])
             update_thing_pos(tile, screen)
             board_tile_group.add(tile)
 
