@@ -5,8 +5,7 @@ import pygame
 class Thing(pygame.sprite.Sprite):
     def __init__(self, x_pos=0, y_pos=0, image=None):
         super().__init__()
-        self.x_pos = x_pos
-        self.y_pos = y_pos
+        self.pos = self.x_pos, self.y_pos = x_pos, y_pos
         self.image = image
         self.rect = self.image.get_rect()
 
@@ -36,11 +35,12 @@ class Actor(Thing):
 
     def step(self, movement_direction, block_list, can_jump=False):
         delta_x, delta_y = self.direction(movement_direction)
-        moved_coors = (self.x_pos + delta_x, self.y_pos + delta_y)
-        probe_result = probe(moved_coors[0], moved_coors[1], block_list, self.board_width, self.board_height)
+        moved_x = self.x_pos + delta_x
+        moved_y = self.y_pos + delta_y
+        probe_result = probe(moved_x, moved_y, block_list, self.board_width, self.board_height)
 
         if probe_result is not None and (probe_result is False or can_jump):
-            self.x_pos, self.y_pos = moved_coors
+            self.place_here(moved_x, moved_y)
 
 
 class Player(Actor):
@@ -58,11 +58,10 @@ class Player(Actor):
             if self.carried_block:
                 self.carried_block.letter_direction = movement_direction
         else:
-            super().step(movement_direction, block_list,
-                         can_jump=False if self.carried_block and not back_jump else True)
+            can_jump = False if self.carried_block and not back_jump else True
+            super().step(movement_direction, block_list, can_jump=can_jump)
             if self.carried_block and not back_jump:
-                self.carried_block.x_pos = self.x_pos
-                self.carried_block.y_pos = self.y_pos
+                self.carried_block.place_here(self.x_pos, self.y_pos)
                 self.status = 'Grounded'
                 return
             if probe(self.x_pos, self.y_pos, block_list, self.board_width, self.board_height):
@@ -114,6 +113,7 @@ class Block(Actor):
     def update_falling(self, player, block_list, clock_ticks=1):
         self.drop_clock -= clock_ticks
         if self.drop_clock <= 0:
+            self.drop_clock = 0
             if probe(self.x_pos, self.y_pos, block_list, self.board_width, self.board_height):
                 return 'Failure'
             elif self.x_pos == player.x_pos and self.y_pos == player.y_pos:

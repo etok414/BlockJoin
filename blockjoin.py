@@ -21,12 +21,12 @@ def main():
         screen.fill((0, 0, 0))
         board_tile_group.draw(screen)
 
-        if counter >= 3:
+        if counter == 0:
             check_keyboard(player, block_list)
-        counter = (counter + 1) % 4
+        counter = (counter - 1) % 5
 
         # TODO: Properly implement shadows.
-        shadow_tile.x_pos, shadow_tile.y_pos = falling_block.x_pos, falling_block.y_pos
+        shadow_tile.place_here(falling_block.x_pos, falling_block.y_pos)
         shadow_tile.image = graphics_dict[f'tile_shadow{5-int(falling_block.drop_clock/30)}']
         update_thing_pos(shadow_tile, screen)
         # TODO: Properly implement shadows.
@@ -56,6 +56,9 @@ def check_keyboard(player, block_list):
             sys.exit()
     pygame.event.pump()
     key = pygame.key.get_pressed()  # checking pressed keys
+    if key[pygame.K_SPACE]:
+        player.push(block_list)
+        player.carried_block = None
     if key[pygame.K_w]:
         player.step('n', block_list)
     elif key[pygame.K_d]:
@@ -64,9 +67,6 @@ def check_keyboard(player, block_list):
         player.step('s', block_list)
     elif key[pygame.K_a]:
         player.step('w', block_list)
-    elif key[pygame.K_SPACE]:
-        player.push(block_list)
-        player.carried_block = None
     elif key[pygame.K_p]:
         while True:
             pygame.time.delay(150)
@@ -78,6 +78,7 @@ def check_keyboard(player, block_list):
             if key[pygame.K_p] or key[pygame.K_o]:
                 break
     elif key[pygame.K_q]:
+        pygame.time.delay(200)
         sys.exit()
 
 
@@ -98,7 +99,7 @@ def loop_check(chain, block_list):
         return False
     for num, block in enumerate(chain):
         if next_block.x_pos == block.x_pos and next_block.y_pos == block.y_pos:
-            return chain[num:]  # This is the gridlock it returns
+            return chain[num:]  # This is the loop it returns
     chain.append(next_block)
     loop_or_false = loop_check(chain, block_list)
     return loop_or_false
@@ -109,20 +110,18 @@ def block_drop(falling_block, player, block_list, drop_ticks=1):
 
     width, height = falling_block.board_width, falling_block.board_height
     bag, direction = falling_block.bag, falling_block.direction
-    x_pos, y_pos = falling_block.x_pos, falling_block.y_pos
     image = falling_block.image
 
     if drop_result == 'Failure':
         print('Failure')
+        pygame.time.delay(200)
         sys.exit()
     elif drop_result == 'Head_landing':
-        # player.carried_block = game_class.Block(width, height, bag, direction, x_pos, y_pos, image=image)
         player.carried_block = falling_block
         player.carried_block.drop_clock = 1
         player.carried_block.letter_direction = player.letter_direction
         return game_class.Block(width, height, bag=bag, image=image)
     elif drop_result == 'Ground_landing':
-        # block_list.append(game_class.Block(width, height, bag, direction, x_pos, y_pos, image=image))
         block_list.append(falling_block)
         return game_class.Block(width, height, bag=bag, image=image)
     else:
