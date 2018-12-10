@@ -15,14 +15,17 @@ def main():
     player = game_class.Player(width, height, image=graphics_dict['blob_e'])
     shadow_tile = game_class.Thing(image=graphics_dict['tile_shadow1'])
 
-    counter = 0
+    cooldown = 0
     while True:
         screen.fill((0, 0, 0))
         board_tile_group.draw(screen)
 
-        if counter == 0:
-            check_keyboard(player, block_group)
-        counter = (counter - 1) % 4
+        if cooldown == 0:
+            action = check_keyboard(player, block_group)
+            if action:
+                cooldown = 4
+        else:
+            cooldown -= 1
 
         # TODO: Properly implement shadows.
         shadow_tile.place_here(falling_block.x_pos, falling_block.y_pos)
@@ -61,17 +64,24 @@ def check_keyboard(player, block_group):
 
     pygame.event.pump()
     key = pygame.key.get_pressed()  # checking pressed keys
+    action = False
     if key[pygame.K_SPACE]:
         player.push(block_group)
+        action = True
     if key[pygame.K_w]:
         player.step('n', block_group)
+        action = True
     elif key[pygame.K_d]:
         player.step('e', block_group)
+        action = True
     elif key[pygame.K_s]:
         player.step('s', block_group)
+        action = True
     elif key[pygame.K_a]:
         player.step('w', block_group)
+        action = True
     elif key[pygame.K_p]:
+        action = True
         while True:
             pygame.time.delay(150)
             for event in pygame.event.get():  # Close nicely and display changes
@@ -87,6 +97,7 @@ def check_keyboard(player, block_group):
     elif key[pygame.K_q]:
         pygame.time.delay(200)
         sys.exit()
+    return action
 
 
 def full_board_loop_check(block_group, graphics_dict):
