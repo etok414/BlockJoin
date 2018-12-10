@@ -38,16 +38,10 @@ def draw_board(screen, graphics_dict):
     for x_c in range(6):
         for y_c in range(6):
             tile = game_class.Thing(x_c, y_c, image=graphics_dict['tile'])
-            update_thing_pos(tile, screen)
+            tile.update(screen)
             board_tile_group.add(tile)
 
     return board_tile_group
-
-
-def update_thing_pos(thing, screen):
-    x_i, y_i = thing.calc_screen_pos()
-    thing.rect.centerx, thing.rect.centery = 100 + x_i, 300 + y_i
-    screen.blit(thing.image, thing.rect)
 
 
 def main():
