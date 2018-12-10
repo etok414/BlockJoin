@@ -39,6 +39,8 @@ def main():
             player.carried_block().update(screen)
 
         falling_block = block_drop(falling_block, player, block_group, 1)
+        if falling_block == 'stop':
+            end_game(graphics_dict, screen)
         falling_block.image = graphics_dict[f'pill_{falling_block.letter_direction}']
         falling_block.update(screen)
 
@@ -52,9 +54,11 @@ def check_keyboard(player, block_group):
     for event in pygame.event.get():  # Close nicely and display changes # TODO: Move this to main?
         if event.type == pygame.QUIT:
             sys.exit()
+
     for block in block_group:
         if block.marked:
             block.kill()
+
     pygame.event.pump()
     key = pygame.key.get_pressed()  # checking pressed keys
     if key[pygame.K_SPACE]:
@@ -77,6 +81,9 @@ def check_keyboard(player, block_group):
             key = pygame.key.get_pressed()  # checking pressed keys
             if key[pygame.K_p] or key[pygame.K_o]:
                 break
+            elif key[pygame.K_q]:
+                pygame.time.delay(200)
+                sys.exit()
     elif key[pygame.K_q]:
         pygame.time.delay(200)
         sys.exit()
@@ -123,8 +130,7 @@ def block_drop(falling_block, player, block_group, drop_ticks=1):
 
     if drop_result == 'Failure':
         print('Failure')
-        pygame.time.delay(200)
-        sys.exit()
+        return 'stop'
     elif drop_result == 'Head_landing':
         player.carried_block_group.add(falling_block)
         player.carried_block().drop_clock = 1
@@ -135,6 +141,15 @@ def block_drop(falling_block, player, block_group, drop_ticks=1):
         return game_class.Block(width, height, bag=bag, image=image)
     else:
         return falling_block
+
+
+def end_game(graphics_dict, screen):
+    image = graphics_dict['game_over']
+    img_rect = image.get_rect(center=(400, 200))
+    screen.blit(image, img_rect)
+    pygame.display.flip()
+    pygame.time.delay(2500)
+    sys.exit()
 
 
 if __name__ == '__main__':

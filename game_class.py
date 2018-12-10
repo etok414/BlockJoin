@@ -23,6 +23,9 @@ class Thing(pygame.sprite.Sprite):
         self.rect.centerx, self.rect.centery = 100 + x_i, 300 + y_i
         screen.blit(self.image, self.rect)
 
+    def ghost(self):
+        self.image.set_alpha(100)
+
 
 class Actor(Thing):
     def __init__(self, board_width, board_height, direction='e', x_pos=0, y_pos=0, image=None):
@@ -58,7 +61,7 @@ class Player(Actor):
         self.carried_block_group = pygame.sprite.GroupSingle()
 
     def carried_block(self):
-        return self.carried_block_group.sprite()
+        return self.carried_block_group.sprite
 
     def step(self, movement_direction, block_group, back_jump=False):
         if self.letter_direction != movement_direction and not back_jump:
@@ -141,10 +144,6 @@ class Block(Actor):
             y_i -= 25
             y_i -= self.drop_clock
         return x_i, y_i
-
-
-def ghosts(self):
-    pass
 
 
 def probe(x_coor, y_coor, block_group, board_width, board_height):
