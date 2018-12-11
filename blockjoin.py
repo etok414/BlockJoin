@@ -8,9 +8,10 @@ def main():
     width, height = 6, 6
     pygame.init()
     graphics_dict, screen = initialize()  # Initialize graphics: graphics_dict hold all sprites with their names as keys
-    board_tile_group = draw_board(screen, graphics_dict)
 
+    board_tile_group = draw_board(screen, graphics_dict)
     block_group = pygame.sprite.Group()
+
     falling_block = game_class.Block(width, height, image=graphics_dict['pill_e'])
     player = game_class.Player(width, height, image=graphics_dict['blob_e'])
     shadow_tile = game_class.Thing(image=graphics_dict['tile_shadow1'])
@@ -27,11 +28,10 @@ def main():
         else:
             cooldown -= 1
 
-        # TODO: Properly implement shadows.
         shadow_tile.place_here(falling_block.x_pos, falling_block.y_pos)
         shadow_tile.image = graphics_dict[f'tile_shadow{5-int(falling_block.drop_clock/30)}']
         shadow_tile.update(screen)
-        # TODO: Properly implement shadows.
+        # TODO: Make block standing on shadow transparent
 
         block_group.update(screen)
 
@@ -156,7 +156,7 @@ def block_drop(falling_block, player, block_group, drop_ticks=1):
 
 def end_game(graphics_dict, screen):
     image = graphics_dict['game_over']
-    img_rect = image.get_rect(center=(400, 200))
+    img_rect = image.get_rect(center=(350, 250))
     screen.blit(image, img_rect)
     pygame.display.flip()
     pygame.time.delay(2500)
