@@ -41,7 +41,7 @@ class Actor(Thing):
 
         return {'n': (0, 1), 'e': (1, 0), 'w': (-1, 0), 's': (0, -1)}[direction]
 
-    def step(self, movement_direction, block_group, can_jump=False):
+    def take_step(self, movement_direction, block_group, can_jump=False):
         delta_x, delta_y = self.direction(movement_direction)
         moved_x = self.x_pos + delta_x
         moved_y = self.y_pos + delta_y
@@ -63,14 +63,14 @@ class Player(Actor):
     def carried_block(self):
         return self.carried_block_group.sprite
 
-    def step(self, movement_direction, block_group, back_jump=False):
+    def take_step(self, movement_direction, block_group, back_jump=False):
         if self.letter_direction != movement_direction and not back_jump:
             self.letter_direction = movement_direction
             if self.carried_block():
                 self.carried_block().letter_direction = movement_direction
         else:
             can_jump = False if self.carried_block() and not back_jump else True
-            super().step(movement_direction, block_group, can_jump=can_jump)
+            super().take_step(movement_direction, block_group, can_jump=can_jump)
             if self.carried_block() and not back_jump:
                 self.carried_block().place_here(self.x_pos, self.y_pos)
                 self.status = 'Grounded'
@@ -80,12 +80,12 @@ class Player(Actor):
             else:
                 self.status = 'Fine'
 
-    def push(self, block_group):
+    def push_block(self, block_group):
         if self.carried_block():
             self.carried_block().drop_clock = 0
             block_group.add(self.carried_block())
             reversal_dict = {'n': 's', 'e': 'w', 's': 'n', 'w': 'e'}
-            self.step(reversal_dict[self.letter_direction], block_group, back_jump=True)
+            self.take_step(reversal_dict[self.letter_direction], block_group, back_jump=True)
             self.carried_block_group.empty()
         else:
             delta_x, delta_y = self.direction()
@@ -93,7 +93,7 @@ class Player(Actor):
                 probe_result = probe(self.x_pos + delta_x, self.y_pos + delta_y,
                                      block_group, self.board_width, self.board_height)
                 if probe_result:
-                    probe_result.step(self.letter_direction, block_group)
+                    probe_result.take_step(self.letter_direction, block_group)
             # TODO: Punch animation.
             # TODO: Check line above. It says "unresolved attribute error"
 

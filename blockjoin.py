@@ -16,22 +16,26 @@ def main():
     player = game_class.Player(width, height, image=graphics_dict['blob_e'])
     shadow_tile = game_class.Thing(image=graphics_dict['tile_shadow1'])
 
-    cooldown = 0
+    cool_down = 0
     while True:
         screen.fill((0, 0, 0))
         board_tile_group.draw(screen)
 
-        if cooldown == 0:
+        if cool_down == 0:
             action = check_keyboard(player, block_group)
             if action:
-                cooldown = 4
+                cool_down = 4
         else:
-            cooldown -= 1
+            cool_down -= 1
 
         shadow_tile.place_here(falling_block.x_pos, falling_block.y_pos)
         shadow_tile.image = graphics_dict[f'tile_shadow{5-int(falling_block.drop_clock/30)}']
         shadow_tile.update(screen)
         # TODO: Make block standing on shadow transparent
+        for item in block_group:
+            if item.x_pos == falling_block.x_pos and item.y_pos == falling_block.y_pos:
+                item.image = graphics_dict[f'pill_{item.letter_direction}_shadow' \
+                                           f'{5-int(falling_block.drop_clock/30)}']
 
         block_group.update(screen)
 
@@ -66,19 +70,19 @@ def check_keyboard(player, block_group):
     key = pygame.key.get_pressed()  # checking pressed keys
     action = False
     if key[pygame.K_SPACE]:
-        player.push(block_group)
+        player.push_block(block_group)
         action = True
     if key[pygame.K_w]:
-        player.step('n', block_group)
+        player.take_step('n', block_group)
         action = True
     elif key[pygame.K_d]:
-        player.step('e', block_group)
+        player.take_step('e', block_group)
         action = True
     elif key[pygame.K_s]:
-        player.step('s', block_group)
+        player.take_step('s', block_group)
         action = True
     elif key[pygame.K_a]:
-        player.step('w', block_group)
+        player.take_step('w', block_group)
         action = True
     elif key[pygame.K_p]:
         action = True
