@@ -21,43 +21,47 @@ def main():
         screen.fill((0, 0, 0))
         board_tile_group.draw(screen)
 
-        if cool_down == 0:
-            action = check_keyboard(player, block_group)
-            if action:
-                cool_down = 4
-        else:
-            cool_down -= 1
+        check_keyboard(player, block_group, cool_down)  # Player only needs to move every 4 cycle. Governed by cool_down
+        cool_down += 1
 
-        shadow_tile.place_here(falling_block.x_pos, falling_block.y_pos)
-        shadow_tile.image = graphics_dict[f'tile_shadow{5-int(falling_block.drop_clock/30)}']
-        shadow_tile.update(screen)
-        # TODO: Make block standing on shadow transparent
-        for item in block_group:
-            if item.x_pos == falling_block.x_pos and item.y_pos == falling_block.y_pos:
-                item.image = graphics_dict[f'pill_{item.letter_direction}_shadow' \
-                                           f'{5-int(falling_block.drop_clock/30)}']
-
+        update_shadows(block_group, falling_block, graphics_dict, screen, shadow_tile)
         block_group.update(screen)
-
-        player.image = graphics_dict[f'blob_{player.letter_direction}']
-        player.update(screen)
-        if player.carried_block():
-            player.carried_block().image = graphics_dict[f'pill_{player.carried_block().letter_direction}']
-            player.carried_block().update(screen)
-
-        falling_block = block_drop(falling_block, player, block_group, 1)
-        if falling_block == 'stop':
-            end_game(graphics_dict, screen)
-        falling_block.image = graphics_dict[f'pill_{falling_block.letter_direction}']
-        falling_block.update(screen)
-
+        update_player(graphics_dict, player, screen)
+        falling_block = update_falling_block(block_group, falling_block, graphics_dict, player, screen)
         full_board_loop_check(block_group, graphics_dict)
 
         pygame.display.flip()
         pygame.time.delay(33)
 
 
-def check_keyboard(player, block_group):
+def update_falling_block(block_group, falling_block, graphics_dict, player, screen):
+    falling_block = block_drop(falling_block, player, block_group, 1)
+    if falling_block == 'stop':
+        end_game(graphics_dict, screen)
+    falling_block.image = graphics_dict[f'pill_{falling_block.letter_direction}']
+    falling_block.update(screen)
+    return falling_block
+
+
+def update_player(graphics_dict, player, screen):
+    player.image = graphics_dict[f'blob_{player.letter_direction}']
+    player.update(screen)
+    if player.carried_block():
+        player.carried_block().image = graphics_dict[f'pill_{player.carried_block().letter_direction}']
+        player.carried_block().update(screen)
+
+
+def update_shadows(block_group, falling_block, graphics_dict, screen, shadow_tile):
+    shadow_tile.place_here(falling_block.x_pos, falling_block.y_pos)
+    shadow_tile.image = graphics_dict[f'tile_shadow{5-int(falling_block.drop_clock/30)}']
+    shadow_tile.update(screen)
+    for item in block_group:
+        if item.x_pos == falling_block.x_pos and item.y_pos == falling_block.y_pos:
+            item.image = graphics_dict[f'pill_{item.letter_direction}_shadow' \
+                                       f'{5-int(falling_block.drop_clock/30)}']
+
+
+def check_keyboard(player, block_group, cool_down):
     for event in pygame.event.get():  # Close nicely and display changes # TODO: Move this to main?
         if event.type == pygame.QUIT:
             sys.exit()
@@ -66,42 +70,36 @@ def check_keyboard(player, block_group):
         if block.marked:
             block.kill()
 
-    pygame.event.pump()
-    key = pygame.key.get_pressed()  # checking pressed keys
-    action = False
-    if key[pygame.K_SPACE]:
-        player.push_block(block_group)
-        action = True
-    if key[pygame.K_w]:
-        player.take_step('n', block_group)
-        action = True
-    elif key[pygame.K_d]:
-        player.take_step('e', block_group)
-        action = True
-    elif key[pygame.K_s]:
-        player.take_step('s', block_group)
-        action = True
-    elif key[pygame.K_a]:
-        player.take_step('w', block_group)
-        action = True
-    elif key[pygame.K_p]:
-        action = True
-        while True:
-            pygame.time.delay(150)
-            for event in pygame.event.get():  # Close nicely and display changes
-                if event.type == pygame.QUIT:
+    is_it_3_now = cool_down % 4
+    if is_it_3_now == 3:
+        pygame.event.pump()
+        key = pygame.key.get_pressed()  # checking pressed keys
+        if key[pygame.K_SPACE]:
+            player.push_block(block_group)
+        if key[pygame.K_w]:
+            player.take_step('n', block_group)
+        elif key[pygame.K_d]:
+            player.take_step('e', block_group)
+        elif key[pygame.K_s]:
+            player.take_step('s', block_group)
+        elif key[pygame.K_a]:
+            player.take_step('w', block_group)
+        elif key[pygame.K_p]:
+            while True:
+                pygame.time.delay(150)
+                for event in pygame.event.get():  # Close nicely and display changes
+                    if event.type == pygame.QUIT:
+                        sys.exit()
+                pygame.event.pump()
+                key = pygame.key.get_pressed()  # checking pressed keys
+                if key[pygame.K_p] or key[pygame.K_o]:
+                    break
+                elif key[pygame.K_q]:
+                    pygame.time.delay(200)
                     sys.exit()
-            pygame.event.pump()
-            key = pygame.key.get_pressed()  # checking pressed keys
-            if key[pygame.K_p] or key[pygame.K_o]:
-                break
-            elif key[pygame.K_q]:
-                pygame.time.delay(200)
-                sys.exit()
-    elif key[pygame.K_q]:
-        pygame.time.delay(200)
-        sys.exit()
-    return action
+        elif key[pygame.K_q]:
+            pygame.time.delay(200)
+            sys.exit()
 
 
 def full_board_loop_check(block_group, graphics_dict):

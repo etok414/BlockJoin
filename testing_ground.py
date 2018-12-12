@@ -1,26 +1,40 @@
 import sys
 import pygame
-from graphics import initialize, update_thing_pos, move_sprite_to
+from graphics import initialize
 import game_class
 
 
 def main():
-    tile_dict = dict()
-    graphics_dict, screen = initialize()
-    width, height = 6, 6
-    tile = game_class.Thing(width, height, image=graphics_dict['tile'])
-    tile_dict['1'] = tile
-    tile = game_class.Thing(width, height, image=graphics_dict['tile'])
-    tile_dict['2'] = tile
-    for n, flise in enumerate(tile_dict):
-        print(n, (n+5)*30, 5)
-        tile_dict[flise].place_here(n, 5)
-        update_thing_pos(tile_dict[flise],screen)
-        # move_sprite_to((n + 5) * 30, 5, tile_dict[flise].rect, graphics_dict['tile'], screen)
-        # update_thing_pos(flise, screen)
+    while True:
+        time_to_move = next(cool_down_number())
+        print(time_to_move)
+        pygame.time.delay(500)
 
-    pygame.display.flip()
-    pygame.time.delay(1000)
+
+def cool_down_number():
+    value = 0
+    while value < 10:
+        return_value = value % 4
+        yield return_value
+        value += 1
+        print('rap', return_value)
+
+    # tile_dict = dict()
+    # graphics_dict, screen = initialize()
+    # width, height = 6, 6
+    # tile = game_class.Thing(width, height, image=graphics_dict['tile'])
+    # tile_dict['1'] = tile
+    # tile = game_class.Thing(width, height, image=graphics_dict['tile'])
+    # tile_dict['2'] = tile
+    # for n, flise in enumerate(tile_dict):
+    #     print(n, (n+5)*30, 5)
+    #     tile_dict[flise].place_here(n, 5)
+    #     update_thing_pos(tile_dict[flise],screen)
+    #     # move_sprite_to((n + 5) * 30, 5, tile_dict[flise].rect, graphics_dict['tile'], screen)
+    #     # update_thing_pos(flise, screen)
+    #
+    # pygame.display.flip()
+    # pygame.time.delay(1000)
 
     # draw_board(6, 6, graphics_dict['tile'], screen)
     # red = (255, 0, 0)
