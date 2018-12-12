@@ -105,16 +105,20 @@ class Player(Actor):
 
 
 class Block(Actor):
-    def __init__(self, board_width, board_height, bag=None, direction=None, x_pos=None, y_pos=None, image=None):
+    def __init__(self, board_width, board_height, bag=None, direction=None, x_pos=None, y_pos=None, image=None,
+                 block_group=None):
         super().__init__(board_width, board_height, direction, x_pos, y_pos, image)
         if self.x_pos is None and self.y_pos is None:
-            self.drop_clock = 149
+            self.drop_clock = 124
+            self.x_pos = random.randrange(1, self.board_width - 2)
+            self.y_pos = random.randrange(1, self.board_height - 2)
+            if block_group is not None:
+                if probe(self.x_pos, self.y_pos, block_group, board_height, board_width):
+                    print(self.x_pos, self.y_pos)
+                    self.x_pos = random.randrange(1, self.board_width - 2)
+                    self.y_pos = random.randrange(1, self.board_height - 2)
         else:
             self.drop_clock = 0
-        if self.x_pos is None:
-            self.x_pos = random.randrange(1, self.board_width - 2)
-        if self.y_pos is None:
-            self.y_pos = random.randrange(1, self.board_height - 2)
         if self.letter_direction is None:
             if not bag:
                 bag = ['n', 'e', 's', 'w']
