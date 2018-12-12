@@ -12,7 +12,8 @@ def main():
     board_tile_group = draw_board(screen, graphics_dict)
     block_group = pygame.sprite.Group()
 
-    falling_block = game_class.Block(width, height, image=graphics_dict['pill_e'], block_group=block_group)
+    falling_block = pygame.sprite.GroupSingle()
+    falling_block.add(game_class.Block(width, height, image=graphics_dict['pill_e'], block_group=block_group))
     player = game_class.Player(width, height, image=graphics_dict['blob_e'])
     shadow_tile = game_class.Thing(image=graphics_dict['tile_shadow1'])
 
@@ -34,19 +35,30 @@ def main():
 
         block_group.update(screen)
         update_player(graphics_dict, player, screen)
-        falling_block = update_falling_block(block_group, falling_block, graphics_dict, player, screen)
+        update_falling_block(block_group, falling_block, graphics_dict, player, screen, drop_ticks=1)
 
         pygame.display.flip()
         pygame.time.delay(33)
 
 
-def update_falling_block(block_group, falling_block, graphics_dict, player, screen):
-    falling_block = block_drop(falling_block, player, block_group, 1)
-    if falling_block == 'stop':
+def update_falling_block(block_group, falling_block, graphics_dict, player, screen, drop_ticks=1):
+    fb = falling_block.sprite
+    drop_result = fb.update_falling(player, block_group, drop_ticks)
+
+    if drop_result == 'Failure':
         end_game(graphics_dict, screen)
-    falling_block.image = graphics_dict[f'pill_{falling_block.letter_direction}']
-    falling_block.update(screen)
-    return falling_block
+    elif drop_result == 'Head_landing':
+        player.carried_block_group.add(fb)
+        player.carried_block().drop_clock = 1
+        player.carried_block().letter_direction = player.letter_direction
+        falling_block.add(game_class.Block(fb.board_width, fb.board_height,
+                                           bag=fb.bag, image=fb.image, block_group=block_group))
+    elif drop_result == 'Ground_landing':
+        block_group.add(fb)
+        falling_block.add(game_class.Block(fb.board_width, fb.board_height,
+                                           bag=fb.bag, image=fb.image, block_group=block_group))
+    fb.image = graphics_dict[f'pill_{fb.letter_direction}']
+    fb.update(screen)
 
 
 def update_player(graphics_dict, player, screen):
@@ -58,15 +70,15 @@ def update_player(graphics_dict, player, screen):
 
 
 def update_shadows(block_group, falling_block, graphics_dict, screen, shadow_tile):
-    shadow_tile.place_here(falling_block.x_pos, falling_block.y_pos)
-    shadow_tile.image = graphics_dict[f'tile_shadow{5-int(falling_block.drop_clock/25)}']
+    fb = falling_block.sprite
+    shadow_tile.place_here(fb.x_pos, fb.y_pos)
+    shadow_tile.image = graphics_dict[f'tile_shadow{5-int(fb.drop_clock/25)}']
     shadow_tile.update(screen)
     for block in block_group:
         if block.marked:
             block.image = graphics_dict[f'pill_{block.letter_direction}_inv']
-        elif block.x_pos == falling_block.x_pos and block.y_pos == falling_block.y_pos:
-            block.image = graphics_dict[f'pill_{block.letter_direction}_shadow' \
-                                       f'{5-int(falling_block.drop_clock/25)}']
+        elif block.x_pos == fb.x_pos and block.y_pos == fb.y_pos:
+            block.image = graphics_dict[f'pill_{block.letter_direction}_shadow{5-int(fb.drop_clock/25)}']
         else:
             block.image = graphics_dict[f'pill_{block.letter_direction}']
 
@@ -150,28 +162,6 @@ def loop_check(chain, block_group):
     chain.add(next_block)
     loop_or_false = loop_check(chain, block_group)
     return loop_or_false
-
-
-def block_drop(falling_block, player, block_group, drop_ticks=1):
-    drop_result = falling_block.update_falling(player, block_group, drop_ticks)
-
-    width, height = falling_block.board_width, falling_block.board_height
-    bag, direction = falling_block.bag, falling_block.direction
-    image = falling_block.image
-
-    if drop_result == 'Failure':
-        print('Failure')
-        return 'stop'
-    elif drop_result == 'Head_landing':
-        player.carried_block_group.add(falling_block)
-        player.carried_block().drop_clock = 1
-        player.carried_block().letter_direction = player.letter_direction
-        return game_class.Block(width, height, bag=bag, image=image, block_group=block_group)
-    elif drop_result == 'Ground_landing':
-        block_group.add(falling_block)
-        return game_class.Block(width, height, bag=bag, image=image, block_group=block_group)
-    else:
-        return falling_block
 
 
 def end_game(graphics_dict, screen):
