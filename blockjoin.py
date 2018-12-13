@@ -33,9 +33,11 @@ def main():
 
         disappear_delay = full_board_loop_check(block_group, disappear_delay)
 
-        update_shadows(block_group, falling_block_group, graphics_dict, screen, shadow_tile)
+        update_shadows(falling_block_group, graphics_dict, screen, shadow_tile)
+        for block in block_group:
+            block.select_image(graphics_dict, falling_block_group.sprite)
         block_group.update(screen)
-        ghost_group.update(screen, block_group)
+        ghost_group.update(screen, block_group, graphics_dict)
         update_player(graphics_dict, player, screen)
         update_falling_block(block_group, falling_block_group, graphics_dict, player, screen, drop_ticks=1)
 
@@ -74,13 +76,11 @@ def update_player(graphics_dict, player, screen):
         player.carried_block().update(screen)
 
 
-def update_shadows(block_group, falling_block_group, graphics_dict, screen, shadow_tile):
+def update_shadows(falling_block_group, graphics_dict, screen, shadow_tile):
     falling_block = falling_block_group.sprite
     shadow_tile.place_here(falling_block.x_pos, falling_block.y_pos)
     shadow_tile.image = graphics_dict[f'tile_shadow{5-int(falling_block.drop_clock/25)}']
     shadow_tile.update(screen)
-    for block in block_group:
-        block.select_image(graphics_dict, falling_block)
 
 
 def check_keyboard(player, block_group, cool_down):
@@ -166,6 +166,8 @@ def loop_check(chain, block_group):
 
 def make_ghosts(board_width, board_height, graphics_dict):
     placeholder = graphics_dict['pill_e_ghost']
+    for letter in 'nesw':
+        graphics_dict[f'pill_{letter}_ghost'].set_alpha(100)
     ghost_group = pygame.sprite.Group()
     for num in range(board_width):
         ghost_group.add(game_class.Ghost(num, -1, board_width, board_height, image=placeholder),

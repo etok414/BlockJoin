@@ -162,12 +162,11 @@ class Ghost(Thing):
         self.board_width = board_width
         self.board_height = board_height
 
-    def update(self, screen, block_group):
+    def update(self, screen, block_group, graphics_dict):
         probe_result = probe(self.x_pos % self.board_width, self.y_pos % self.board_height,
                              block_group, self.board_width, self.board_height)
         if probe_result:
-            self.image = probe_result.image
-            self.image.set_alpha(100)
+            self.image = graphics_dict[f'pill_{probe_result.letter_direction}_ghost']
             super().update(screen)
 
 
