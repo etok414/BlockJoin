@@ -23,9 +23,6 @@ class Thing(pygame.sprite.Sprite):
         self.rect.centerx, self.rect.centery = 100 + x_i, 300 + y_i
         screen.blit(self.image, self.rect)
 
-    def ghost(self):
-        self.image.set_alpha(100)
-
 
 class Actor(Thing):
     def __init__(self, board_width, board_height, direction='e', x_pos=0, y_pos=0, image=None):
@@ -127,6 +124,15 @@ class Block(Actor):
         self.marked = False
         self.bag = bag
 
+    def select_image(self, graphics_dict, falling_block=None):
+        if self.marked:
+            self.image = graphics_dict[f'pill_{self.letter_direction}_inv']
+        elif falling_block:
+            if self.x_pos == falling_block.x_pos and self.y_pos == falling_block.y_pos:
+                self.image = graphics_dict[f'pill_{self.letter_direction}_shadow{5-int(falling_block.drop_clock/25)}']
+        else:
+            self.image = graphics_dict[f'pill_{self.letter_direction}']
+
     def update_falling(self, player, block_group, clock_ticks=1):
         self.drop_clock -= clock_ticks
         if self.drop_clock <= 0:
@@ -148,6 +154,21 @@ class Block(Actor):
             y_i -= 25
             y_i -= self.drop_clock
         return x_i, y_i
+
+
+class Ghost(Thing):
+    def __init__(self, x_pos, y_pos, board_width, board_height, image=None):
+        super().__init__(x_pos, y_pos, image)
+        self.board_width = board_width
+        self.board_height = board_height
+
+    def update(self, screen, block_group):
+        probe_result = probe(self.x_pos % self.board_width, self.y_pos % self.board_height,
+                             block_group, self.board_width, self.board_height)
+        if probe_result:
+            self.image = probe_result.image
+            self.image.set_alpha(100)
+            super().update(screen)
 
 
 def probe(x_coor, y_coor, block_group, board_width, board_height):
