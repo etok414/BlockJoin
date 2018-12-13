@@ -9,13 +9,13 @@ def main():
     pygame.init()
     graphics_dict, screen = initialize()  # Initialize graphics: graphics_dict hold all sprites with their names as keys
 
-    board_tile_group = draw_board(screen, graphics_dict)
     block_group = pygame.sprite.Group()
-
+    board_tile_group = draw_board(screen, graphics_dict)
     ghost_group = make_ghosts(width, height, graphics_dict)
-
     falling_block_group = pygame.sprite.GroupSingle()
+
     falling_block_group.add(game_class.Block(width, height, image=graphics_dict['pill_e'], block_group=block_group))
+
     player = game_class.Player(width, height, image=graphics_dict['blob_e'])
     shadow_tile = game_class.Thing(image=graphics_dict['tile_shadow1'])
 
@@ -34,7 +34,6 @@ def main():
         disappear_delay = full_board_loop_check(block_group, disappear_delay)
 
         update_shadows(block_group, falling_block_group, graphics_dict, screen, shadow_tile)
-
         block_group.update(screen)
         ghost_group.update(screen, block_group)
         update_player(graphics_dict, player, screen)
@@ -166,7 +165,7 @@ def loop_check(chain, block_group):
 
 
 def make_ghosts(board_width, board_height, graphics_dict):
-    placeholder = graphics_dict['pill_e']
+    placeholder = graphics_dict['pill_e_ghost']
     ghost_group = pygame.sprite.Group()
     for num in range(board_width):
         ghost_group.add(game_class.Ghost(num, -1, board_width, board_height, image=placeholder),
