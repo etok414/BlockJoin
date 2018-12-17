@@ -1,13 +1,16 @@
 import sys
 import game_class
 import pygame
-from graphics import draw_board, initialize
+from graphics import draw_board, initialize_graphics
 
+
+# TODO Make levels and level counter
+# TODO Make welcome screen with instructions
+# TODO Refactor program and move methods to modules
 
 def main():
     width, height = 6, 6
-    pygame.init()
-    graphics_dict, screen = initialize()  # Initialize graphics: graphics_dict hold all sprites with their names as keys
+    graphics_dict, screen = initialize_graphics()  # graphics_dict hold all sprite with their names as keys
 
     block_group = pygame.sprite.Group()
     board_tile_group = draw_board(screen, graphics_dict)
@@ -33,6 +36,7 @@ def main():
         cool_down = check_keyboard(player, block_group, cool_down)
 
         disappear_delay, score = full_board_loop_check(block_group, disappear_delay, score)
+        display_score(score, screen)
 
         update_shadows(falling_block_group, graphics_dict, screen, shadow_tile)
         for block in block_group:
@@ -40,13 +44,13 @@ def main():
         block_group.update(screen)
         ghost_group.update(screen, block_group, graphics_dict)
         update_player(graphics_dict, player, screen)
-        update_falling_block(block_group, falling_block_group, graphics_dict, player, screen, score, drop_ticks=1)
+        update_falling_block(block_group, falling_block_group, graphics_dict, player, screen, drop_ticks=1)
 
         pygame.display.flip()
         pygame.time.delay(33)
 
 
-def update_falling_block(block_group, falling_block_group, graphics_dict, player, screen, score, drop_ticks=1):
+def update_falling_block(block_group, falling_block_group, graphics_dict, player, screen, drop_ticks=1):
     falling_block = falling_block_group.sprite
     board_width, board_height = falling_block.board_width, falling_block.board_height
     bag, image = falling_block.bag, falling_block.image
@@ -54,7 +58,7 @@ def update_falling_block(block_group, falling_block_group, graphics_dict, player
     drop_result = falling_block.update_falling(player, block_group, drop_ticks)
 
     if drop_result == 'Failure':
-        end_game(graphics_dict, screen, score)
+        end_game(screen)
     elif drop_result == 'Head_landing':
         player.carried_block_group.add(falling_block)
         player.carried_block().drop_clock = 1
@@ -183,14 +187,43 @@ def make_ghosts(board_width, board_height, graphics_dict):
     return ghost_group
 
 
-def end_game(graphics_dict, screen, score):
-    print(f'Score:{score}')
-    image = graphics_dict['game_over']
-    img_rect = image.get_rect(center=(350, 250))
-    screen.blit(image, img_rect)
+def display_score(score, screen):
+    font_object = pygame.font.Font('freesansbold.ttf', 50)
+    text_object = font_object.render(str(score), False, (255, 255, 0))
+    screen.blit(text_object, (75, 75))
+
+
+def display_text(text, x_pos, y_pos, screen, height_in_pixels=50, colour=(255, 255, 0)):
+    font_object = pygame.font.Font('freesansbold.ttf', height_in_pixels)
+    text_object = font_object.render(text, False, colour)
+    screen.blit(text_object, (x_pos, y_pos))
     pygame.display.flip()
+
+
+def end_game(screen):
+    display_text('GAME OVER', 200, 75, screen)
     pygame.time.delay(2000)
-    sys.exit()
+
+    screen.fill((0, 0, 0))
+    display_text('Play again? (y/n)', 150, 75, screen)
+
+    while True:
+        pygame.event.pump()
+        key = pygame.key.get_pressed()  # checking pressed keys
+        if key[pygame.K_n]:
+            screen.fill((0, 0, 0))
+            display_text('Ok, Bye', 200, 75, screen)
+            pygame.time.delay(750)
+
+            screen.fill((0, 0, 0))
+            display_text('Lead programmer: Toke', 100, 175, screen, 25, (0, 255, 255))
+            display_text('Graphics, programming: Mads _*_', 100, 275, screen, 25, (255, 0, 255))
+            pygame.time.delay(3000)
+
+            sys.exit()
+        elif key[pygame.K_y]:
+            main()
+        pygame.time.delay(50)
 
 
 if __name__ == '__main__':

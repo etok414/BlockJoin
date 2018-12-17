@@ -4,8 +4,9 @@ import pygame
 import game_class
 
 
-def initialize():
+def initialize_graphics():
     pygame.init()
+    pygame.font.init()
 
     size = 700, 500
     screen = pygame.display.set_mode(size)
