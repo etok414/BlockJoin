@@ -111,7 +111,6 @@ class Block(Actor):
             self.y_pos = random.randrange(1, self.board_height - 2)
             if block_group is not None:
                 if probe(self.x_pos, self.y_pos, block_group, board_height, board_width):
-                    print(self.x_pos, self.y_pos)
                     self.x_pos = random.randrange(1, self.board_width - 2)
                     self.y_pos = random.randrange(1, self.board_height - 2)
         else:
@@ -125,13 +124,12 @@ class Block(Actor):
         self.bag = bag
 
     def select_image(self, graphics_dict, falling_block=None):
+        self.image = graphics_dict[f'pill_{self.letter_direction}']
         if self.marked:
             self.image = graphics_dict[f'pill_{self.letter_direction}_inv']
         elif falling_block:
             if self.x_pos == falling_block.x_pos and self.y_pos == falling_block.y_pos:
                 self.image = graphics_dict[f'pill_{self.letter_direction}_shadow{5-int(falling_block.drop_clock/25)}']
-        else:
-            self.image = graphics_dict[f'pill_{self.letter_direction}']
 
     def update_falling(self, player, block_group, clock_ticks=1):
         self.drop_clock -= clock_ticks
@@ -162,12 +160,14 @@ class Ghost(Thing):
         self.board_width = board_width
         self.board_height = board_height
 
-    def update(self, screen, block_group, graphics_dict):
-        probe_result = probe(self.x_pos % self.board_width, self.y_pos % self.board_height,
-                             block_group, self.board_width, self.board_height)
-        if probe_result:
-            self.image = graphics_dict[f'pill_{probe_result.letter_direction}_ghost']
-            super().update(screen)
+    def update(self, screen, block_group=None, graphics_dict=None):
+        if block_group and graphics_dict:
+            probe_result = probe(self.x_pos % self.board_width, self.y_pos % self.board_height,
+                                 block_group, self.board_width, self.board_height)
+            if probe_result:
+                self.image = graphics_dict[f'pill_{probe_result.letter_direction}'
+                                           f'{"_inv" if probe_result.marked else ""}_ghost']
+                super().update(screen)
 
 
 def probe(x_coor, y_coor, block_group, board_width, board_height):

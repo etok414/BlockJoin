@@ -21,6 +21,7 @@ def main():
 
     cool_down = 0
     disappear_delay = 0
+    score = 0
     while True:
         for event in pygame.event.get():  # Close nicely and display changes
             if event.type == pygame.QUIT:
@@ -31,7 +32,7 @@ def main():
 
         cool_down = check_keyboard(player, block_group, cool_down)
 
-        disappear_delay = full_board_loop_check(block_group, disappear_delay)
+        disappear_delay, score = full_board_loop_check(block_group, disappear_delay, score)
 
         update_shadows(falling_block_group, graphics_dict, screen, shadow_tile)
         for block in block_group:
@@ -39,13 +40,13 @@ def main():
         block_group.update(screen)
         ghost_group.update(screen, block_group, graphics_dict)
         update_player(graphics_dict, player, screen)
-        update_falling_block(block_group, falling_block_group, graphics_dict, player, screen, drop_ticks=1)
+        update_falling_block(block_group, falling_block_group, graphics_dict, player, screen, score, drop_ticks=1)
 
         pygame.display.flip()
         pygame.time.delay(33)
 
 
-def update_falling_block(block_group, falling_block_group, graphics_dict, player, screen, drop_ticks=1):
+def update_falling_block(block_group, falling_block_group, graphics_dict, player, screen, score, drop_ticks=1):
     falling_block = falling_block_group.sprite
     board_width, board_height = falling_block.board_width, falling_block.board_height
     bag, image = falling_block.bag, falling_block.image
@@ -53,7 +54,7 @@ def update_falling_block(block_group, falling_block_group, graphics_dict, player
     drop_result = falling_block.update_falling(player, block_group, drop_ticks)
 
     if drop_result == 'Failure':
-        end_game(graphics_dict, screen)
+        end_game(graphics_dict, screen, score)
     elif drop_result == 'Head_landing':
         player.carried_block_group.add(falling_block)
         player.carried_block().drop_clock = 1
@@ -124,7 +125,7 @@ def check_keyboard(player, block_group, cool_down):
     return cool_down
 
 
-def full_board_loop_check(block_group, disappear_delay):
+def full_board_loop_check(block_group, disappear_delay, score):
     for block in block_group:
         chain = pygame.sprite.Group()
         chain.add(block)
@@ -135,12 +136,15 @@ def full_board_loop_check(block_group, disappear_delay):
                     disappear_delay = 6
                 block_2.marked = True
     if disappear_delay == 0:
+        clear_counter = 0
         for block in block_group:
             if block.marked:
+                clear_counter += 1
                 block.kill()
+        score += clear_counter * (10 * (10 + clear_counter))
     else:
         disappear_delay -= 1
-    return disappear_delay
+    return disappear_delay, score
 
 
 def loop_check(chain, block_group):
@@ -166,8 +170,9 @@ def loop_check(chain, block_group):
 
 def make_ghosts(board_width, board_height, graphics_dict):
     placeholder = graphics_dict['pill_e_ghost']
-    for letter in 'nesw':
-        graphics_dict[f'pill_{letter}_ghost'].set_alpha(100)
+    for modifier in ['', '_inv']:
+        for letter in ['n', 'e', 's', 'w']:
+            graphics_dict[f'pill_{letter}{modifier}_ghost'].set_alpha(100)
     ghost_group = pygame.sprite.Group()
     for num in range(board_width):
         ghost_group.add(game_class.Ghost(num, -1, board_width, board_height, image=placeholder),
@@ -178,7 +183,8 @@ def make_ghosts(board_width, board_height, graphics_dict):
     return ghost_group
 
 
-def end_game(graphics_dict, screen):
+def end_game(graphics_dict, screen, score):
+    print(f'Score:{score}')
     image = graphics_dict['game_over']
     img_rect = image.get_rect(center=(350, 250))
     screen.blit(image, img_rect)
