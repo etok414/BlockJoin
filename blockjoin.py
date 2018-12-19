@@ -62,13 +62,18 @@ def update_falling_block(block_group, falling_block_group, graphics_dict, player
     elif drop_result == 'Head_landing':
         player.carried_block_group.add(falling_block)
         player.carried_block().drop_clock = 1
-        player.carried_block().letter_direction = player.letter_direction
+        if player.turn_carried_block:
+            player.carried_block().letter_direction = player.letter_direction
+        else:
+            bag = None
         falling_block_group.add(game_class.Block(board_width, board_height,
-                                                 bag=bag, image=image, block_group=block_group))
+                                                 bag=bag, image=image, block_group=block_group, orders='Fall'))
     elif drop_result == 'Ground_landing':
         block_group.add(falling_block)
+        if not player.turn_carried_block:
+            bag = None
         falling_block_group.add(game_class.Block(board_width, board_height,
-                                                 bag=bag, image=image, block_group=block_group))
+                                                 bag=bag, image=image, block_group=block_group, orders='Fall'))
     falling_block.image = graphics_dict[f'pill_{falling_block.letter_direction}']
     falling_block.update(screen)
 
@@ -145,7 +150,7 @@ def full_board_loop_check(block_group, disappear_delay, score):
             if block.marked:
                 clear_counter += 1
                 block.kill()
-        score += clear_counter * (10 * (10 + clear_counter))
+        score += clear_counter * (5 * (10 + clear_counter))
     else:
         disappear_delay -= 1
     return disappear_delay, score
@@ -154,22 +159,44 @@ def full_board_loop_check(block_group, disappear_delay, score):
 def loop_check(chain, block_group):
     latest_block = chain.sprites()[-1]
     board_width, board_height = latest_block.board_width, latest_block.board_height
+
     next_x = (latest_block.x_pos + latest_block.direction()[0]) % board_width
     next_y = (latest_block.y_pos + latest_block.direction()[1]) % board_height
-    next_block = game_class.probe(next_x, next_y, block_group, board_width, board_height)
-    if not next_block:
-        return False
-
     for block in chain:
-        if next_block.x_pos == block.x_pos and next_block.y_pos == block.y_pos:
+        if next_x == block.x_pos and next_y == block.y_pos:
             for tail_block in chain:
-                if next_block.x_pos == tail_block.x_pos and next_block.y_pos == tail_block.y_pos:
+                if next_x == tail_block.x_pos and next_y == tail_block.y_pos:
                     return chain  # This is the loop it returns
                 else:
                     chain.remove(tail_block)
+
+    next_block = game_class.probe(next_x, next_y, block_group, board_width, board_height)
+    if not next_block:
+        return False
     chain.add(next_block)
     loop_or_false = loop_check(chain, block_group)
     return loop_or_false
+
+
+def make_garbage(block_group, board_width, board_height, graphics_dict, player, falling_block=None, garbage_count=1):
+    if falling_block:
+        falling_block.drop_clock = 124
+    if garbage_count > board_width * board_height - (len(block_group.sprites) + 10):
+        garbage_count = board_width * board_height - (len(block_group.sprites) + 10)
+    if garbage_count < 0:
+        return
+
+    bag = None
+    placeholder = graphics_dict['pill_e']
+    for _ in range(garbage_count):
+        new_block = game_class.Block(board_width, board_height,
+                                     bag=bag, image=placeholder, block_group=block_group, orders='Garbage')
+        if game_class.probe(new_block.x_pos, new_block.y_pos, block_group, board_width, board_height):
+            end_game()
+        if player.x_pos == new_block.x_pos and player.y_pos == new_block.y_pos:
+            player.status = 'Elevated'
+
+
 
 
 def make_ghosts(board_width, board_height, graphics_dict):

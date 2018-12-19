@@ -52,6 +52,7 @@ class Player(Actor):
     def __init__(self, board_width, board_height, image):
         super().__init__(board_width, board_height, 'e', 0, 0, image)
 
+        self.turn_carried_block = False
         self.status = 'Fine'
         # Status is 'Fine' if the actor can jump, 'Elevated' if it's atop a block, and 'Grounded' if it can't jump.
         # TODO: Status currently only serves to tell the animation if the player should be elevated.
@@ -63,19 +64,18 @@ class Player(Actor):
     def take_step(self, movement_direction, block_group, back_jump=False):
         if self.letter_direction != movement_direction and not back_jump:
             self.letter_direction = movement_direction
-            if self.carried_block():
+            if self.carried_block() and self.turn_carried_block:
                 self.carried_block().letter_direction = movement_direction
         else:
             can_jump = False if self.carried_block() and not back_jump else True
             super().take_step(movement_direction, block_group, can_jump=can_jump)
-            if self.carried_block() and not back_jump:
-                self.carried_block().place_here(self.x_pos, self.y_pos)
-                self.status = 'Grounded'
-                return
             if probe(self.x_pos, self.y_pos, block_group, self.board_width, self.board_height):
                 self.status = 'Elevated'
             else:
                 self.status = 'Fine'
+            if self.carried_block() and not back_jump:
+                self.carried_block().place_here(self.x_pos, self.y_pos)
+                self.status = 'Grounded'
 
     def push_block(self, block_group):
         if self.carried_block():
@@ -103,9 +103,9 @@ class Player(Actor):
 
 class Block(Actor):
     def __init__(self, board_width, board_height, bag=None, direction=None, x_pos=None, y_pos=None, image=None,
-                 block_group=None):
+                 block_group=None, orders='Fall'):
         super().__init__(board_width, board_height, direction, x_pos, y_pos, image)
-        if self.x_pos is None and self.y_pos is None:
+        if orders == 'Fall':
             self.drop_clock = 124
             self.x_pos = random.randrange(1, self.board_width - 2)
             self.y_pos = random.randrange(1, self.board_height - 2)
@@ -113,6 +113,25 @@ class Block(Actor):
                 if probe(self.x_pos, self.y_pos, block_group, board_height, board_width):
                     self.x_pos = random.randrange(1, self.board_width - 2)
                     self.y_pos = random.randrange(1, self.board_height - 2)
+        elif orders == 'Garbage':
+            self.x_pos = random.randrange(1, self.board_width)
+            self.y_pos = random.randrange(1, self.board_height)
+            if block_group is not None:
+                for _ in range(board_width*board_height):
+                    if probe(self.x_pos, self.y_pos, block_group, board_height, board_width):
+                        self.x_pos = random.randrange(1, self.board_width)
+                        self.y_pos = random.randrange(1, self.board_height)
+                    else:
+                        break
+                if probe(self.x_pos, self.y_pos, block_group, board_height, board_width):
+                    self.x_pos, self.y_pos = None, None
+
+        if self.x_pos is None and self.y_pos is None:
+            for x in range(board_width):
+                for y in range(board_height):
+                    if not probe(x, y, block_group, board_height, board_width):
+                        self.x_pos, self.y_pos = x, y
+                        block_group.add(self)
         else:
             self.drop_clock = 0
         if self.letter_direction is None:
