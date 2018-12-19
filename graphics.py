@@ -32,12 +32,12 @@ def initialize_graphics():
     return graphics_dict, screen
 
 
-def draw_board(screen, graphics_dict):
+def draw_board(graphics_dict, width, height, screen):
     # TODO Is it necessary to pass in screen if drawing is delegated to board_tile_group(screen) later?
     screen.fill((0, 0, 0))  # Black
     board_tile_group = pygame.sprite.Group()
-    for x_c in range(6):
-        for y_c in range(6):
+    for x_c in range(width):
+        for y_c in range(height):
             tile = game_class.Thing(x_c, y_c, image=graphics_dict['tile'])
             tile.update(screen)
             board_tile_group.add(tile)
