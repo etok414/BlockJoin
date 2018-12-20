@@ -3,6 +3,8 @@ import sys
 import pygame
 import game_class
 
+BLACK = (0, 0, 0)
+
 
 def initialize_graphics():
     pygame.init()
@@ -27,14 +29,14 @@ def initialize_graphics():
             full_path = os.path.normpath(_full_path)
 
             graphics_dict[file_name[:-4]] = pygame.image.load(full_path).convert()
-            graphics_dict[file_name[:-4]].set_colorkey((0, 0, 0))  # All black (0,0,0) is ignored (Pseudo alpha channel)
+            graphics_dict[file_name[:-4]].set_colorkey(BLACK)  # Pseudo alpha channel. All black (RGB(0,0,0)) is ignored
 
     return graphics_dict, screen
 
 
 def draw_board(graphics_dict, width, height, screen):
     # TODO Is it necessary to pass in screen if drawing is delegated to board_tile_group(screen) later?
-    screen.fill((0, 0, 0))  # Black
+    screen.fill(BLACK)
     board_tile_group = pygame.sprite.Group()
     for x_c in range(width):
         for y_c in range(height):

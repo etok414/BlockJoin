@@ -20,8 +20,19 @@ def check_for_space_bar():
 
     pygame.event.pump()
     key = pygame.key.get_pressed()
-    if key[pygame.K_SPACE]:
+    if key[pygame.K_SPACE] or key[pygame.K_q]:
         return True
+
+
+def check_for_1_2():
+    pygame.time.delay(5)
+
+    pygame.event.pump()
+    key = pygame.key.get_pressed()
+    if key[pygame.K_1] or key[pygame.K_SPACE] or key[pygame.K_q]:
+        return 1
+    elif key[pygame.K_2]:
+        return 2
 
 
 def welcome(screen):
@@ -38,9 +49,35 @@ def welcome(screen):
         display_text(the_text, 50, y_pos, screen, 25, (0, 255, 255))
         if check_for_space_bar():
             break
-    for _ in range(1000):
+    while True:
         if check_for_space_bar():
             break
+
+
+def choose_game_mode(screen):
+    screen.fill((0, 0, 0))
+    the_text, y_pos = '', 25
+    pygame.time.delay(100)
+    for letter in 'Please choose game mode|' \
+                  '<1> The carried block turn with the player (default)|' \
+                  '<2> The carried block have the original direction|        at all times':
+        if letter == '|':
+            the_text = ''
+            y_pos += 45
+            continue
+        the_text += letter
+        display_text(the_text, 50, y_pos, screen, 25, (0, 255, 255))
+        pygame.time.delay(50)
+        if check_for_1_2() == 1:
+            return True
+        elif check_for_1_2() == 2:
+            return False
+    while True:
+        pygame.time.delay(50)
+        if check_for_1_2() == 1:
+            return True
+        elif check_for_1_2() == 2:
+            return False
 
 
 def end_game():
@@ -51,7 +88,7 @@ def end_game():
     display_text('GAME OVER', 150, 75, screen)
     pygame.time.delay(500)
 
-    display_text('Play again? (y/n)', 150, 250, screen)
+    display_text('Play again? (y/n)', 150, 200, screen)
     while True:
         pygame.event.pump()
         key = pygame.key.get_pressed()  # checking pressed keys

@@ -2,18 +2,17 @@ import sys
 import game_class
 import pygame
 from graphics import draw_board, initialize_graphics
-from start_end_messages import display_score, end_game, welcome
+from start_end_messages import choose_game_mode, display_score, end_game, welcome
 
+BLACK = (0, 0, 0)
 
-# TODO Make levels and level counter
-# TODO Make welcome screen with instructions
-# TODO Refactor program and move methods to modules
 
 def main(display_welcome):
     width, height = 6, 6
     graphics_dict, screen = initialize_graphics()  # graphics_dict hold all sprite with their names as keys
     if display_welcome:
         welcome(screen)
+    turn = choose_game_mode(screen)
 
     block_group = pygame.sprite.Group()
     board_tile_group = draw_board(graphics_dict, width, height, screen)
@@ -22,18 +21,16 @@ def main(display_welcome):
 
     falling_block_group.add(game_class.Block(width, height, image=graphics_dict['pill_e'], block_group=block_group))
 
-    player = game_class.Player(width, height, image=graphics_dict['blob_e'])
+    player = game_class.Player(width, height, image=graphics_dict['blob_e'], turn_carried_block=turn)
     shadow_tile = game_class.Thing(image=graphics_dict['tile_shadow1'])
 
-    cool_down = 0
-    disappear_delay = 0
-    score = 0
+    cool_down, disappear_delay, score = 0, 0, 0
     while True:
         for event in pygame.event.get():  # Close nicely and display changes
             if event.type == pygame.QUIT:
                 sys.exit()
 
-        screen.fill((0, 0, 0))
+        screen.fill(BLACK)
         board_tile_group.draw(screen)
 
         cool_down = check_keyboard(player, block_group, cool_down)
@@ -100,6 +97,7 @@ def check_keyboard(player, block_group, cool_down):
     if cool_down == 0:
         pygame.event.pump()
         key = pygame.key.get_pressed()  # checking pressed keys
+
         if key[pygame.K_SPACE]:
             player.push_block(block_group)
             cool_down = 4
@@ -116,25 +114,29 @@ def check_keyboard(player, block_group, cool_down):
             player.take_step('w', block_group)
             cool_down = 4
         elif key[pygame.K_p]:
+            pause_game()
             cool_down = 4
-            while True:
-                pygame.time.delay(150)
-                for event in pygame.event.get():  # Close nicely and display changes
-                    if event.type == pygame.QUIT:
-                        sys.exit()
-                pygame.event.pump()
-                key = pygame.key.get_pressed()  # checking pressed keys
-                if key[pygame.K_p] or key[pygame.K_o]:
-                    break
-                elif key[pygame.K_q]:
-                    pygame.time.delay(200)
-                    sys.exit()
         elif key[pygame.K_q]:
             pygame.time.delay(200)
             sys.exit()
     else:
         cool_down -= 1
     return cool_down
+
+
+def pause_game():
+    while True:
+        pygame.time.delay(150)
+        for event in pygame.event.get():  # Close nicely and display changes
+            if event.type == pygame.QUIT:
+                sys.exit()
+        pygame.event.pump()
+        key = pygame.key.get_pressed()  # checking pressed keys
+        if key[pygame.K_p] or key[pygame.K_o]:
+            break
+        elif key[pygame.K_q]:
+            pygame.time.delay(200)
+            sys.exit()
 
 
 def full_board_loop_check(block_group, disappear_delay, score):
@@ -223,81 +225,6 @@ def make_ghosts(board_width, board_height, graphics_dict):
         ghost_group.add(game_class.Ghost(-1, num, board_width, board_height, image=placeholder),
                         game_class.Ghost(board_width, num, board_width, board_height, image=placeholder))
     return ghost_group
-
-
-# def display_score(score, screen):
-#     font_object = pygame.font.Font('freesansbold.ttf', 50)
-#     text_object = font_object.render(str(score), False, (255, 255, 0))
-#     screen.blit(text_object, (35, 25))
-#
-#
-# def display_text(text, x_pos, y_pos, screen, height_in_pixels=50, colour=(255, 255, 0)):
-#     font_object = pygame.font.Font('freesansbold.ttf', height_in_pixels)
-#     text_object = font_object.render(text, False, colour)
-#     screen.blit(text_object, (x_pos, y_pos))
-#     pygame.display.flip()
-#
-#
-# def check_for_space_bar():
-#     pygame.time.delay(5)
-#     pygame.event.pump()
-#     key = pygame.key.get_pressed()
-#     if key[pygame.K_SPACE]:
-#         return True
-#
-#
-# def welcome(screen):
-#     screen.fill((0, 0, 0))
-#     the_text, y_pos = '', 25
-#     for letter in 'Welcome to BlockJoin| |The goal is to join blocks end-to-end or in a loop|' \
-#                   'Use <a><s><d><w> to move|You can carry blocks and drop them with <space>|' \
-#                   'You can push blocks with <space>|Press <q> to quit| |Press <space> to close this screen':
-#         if letter == '|':
-#             the_text = ''
-#             y_pos += 45
-#             continue
-#         the_text += letter
-#         display_text(the_text, 50, y_pos, screen, 25, (0, 255, 255))
-#         if check_for_space_bar():
-#             break
-#     for _ in range(1000):
-#         if check_for_space_bar():
-#             break
-#
-#
-# def end_game():
-#     size = 700, 500
-#     screen = pygame.display.set_mode(size)
-#     pygame.display.set_caption('BlockJoin')
-#     display_text('GAME OVER', 200, 75, screen)
-#     pygame.time.delay(2000)
-#
-#     screen.fill((0, 0, 0))
-#     display_text('Play again? (y/n)', 150, 75, screen)
-#
-#     while True:
-#         pygame.event.pump()
-#         key = pygame.key.get_pressed()  # checking pressed keys
-#         if key[pygame.K_n]:
-#             screen.fill((0, 0, 0))
-#             the_text, y_pos = '', 175
-#             for letter in 'Lead programmer: Toke |Graphics, programming: Mads _*_':
-#                 if letter == '|':
-#                     the_text = ''
-#                     y_pos += 100
-#                     continue
-#                 the_text += letter
-#                 display_text(the_text, 100, y_pos, screen, 25, (0, 255, 255))
-#                 if check_for_space_bar():
-#                     sys.exit()
-#                 pygame.time.delay(75)
-#             for _ in range(1000):
-#                 if check_for_space_bar():
-#                     sys.exit()
-#         elif key[pygame.K_y]:
-#             main(display_welcome=False)
-#
-#         pygame.time.delay(50)
 
 
 if __name__ == '__main__':
