@@ -56,7 +56,8 @@ def main(display_welcome):
 def update_falling_block(block_group, falling_block_group, graphics_dict, player, screen, drop_ticks=1):
     falling_block = falling_block_group.sprite
     board_width, board_height = falling_block.board_width, falling_block.board_height
-    bag, image = falling_block.bag, falling_block.image
+    image = falling_block.image
+    bag = falling_block.bag if player.turn_carried_block else None
 
     drop_result = falling_block.update_falling(player, block_group, drop_ticks)
 
@@ -70,14 +71,10 @@ def update_falling_block(block_group, falling_block_group, graphics_dict, player
         player.carried_block().drop_clock = 1
         if player.turn_carried_block:
             player.carried_block().letter_direction = player.letter_direction
-        else:
-            bag = None
         falling_block_group.add(game_class.Block(board_width, board_height,
                                                  bag=bag, image=image, block_group=block_group, orders='Fall'))
     elif drop_result == 'Ground_landing':
         block_group.add(falling_block)
-        if not player.turn_carried_block:
-            bag = None
         falling_block_group.add(game_class.Block(board_width, board_height,
                                                  bag=bag, image=image, block_group=block_group, orders='Fall'))
     falling_block.image = graphics_dict[f'pill_{falling_block.letter_direction}']
@@ -151,7 +148,7 @@ def full_board_loop_check(block_group, disappear_delay, score):
                     disappear_delay = 6
                 block_2.marked = True
     if disappear_delay == 0:
-        clear_counter = 0
+        clear_counter = 0  # Counts the number of blocks cleared at once.
         for block in block_group:
             if block.marked:
                 clear_counter += 1
@@ -187,13 +184,15 @@ def loop_check(chain, block_group):
 def make_garbage(block_group, board_width, board_height, graphics_dict, player, falling_block=None, garbage_count=1):
     if falling_block:
         falling_block.drop_clock = 124
-    if garbage_count > board_width * board_height - (len(block_group.sprites) + 10):
-        garbage_count = board_width * board_height - (len(block_group.sprites) + 10)
-    if garbage_count < 0:
+    max_garbage = board_width * board_height - (len(block_group.sprites) + 10)
+    if garbage_count > max_garbage:
+        garbage_count = max_garbage
+    if garbage_count <= 0:
         return
 
     bag = None
     placeholder = graphics_dict['pill_e']
+    failures = 0
     for _ in range(garbage_count):
         new_block = game_class.Block(board_width, board_height,
                                      bag=bag, image=placeholder, block_group=block_group, orders='Garbage')
@@ -202,8 +201,13 @@ def make_garbage(block_group, board_width, board_height, graphics_dict, player, 
                 main(display_welcome=False)
             else:
                 sys.exit()
-        if player.x_pos == new_block.x_pos and player.y_pos == new_block.y_pos:
-            player.status = 'Elevated'
+        chain = pygame.sprite.Group(new_block)
+        if loop_check(chain, block_group) or (player.x_pos == new_block.x_pos and player.y_pos == new_block.y_pos):
+            failures += 1
+            new_block.kill()
+        else:
+            block_group.add(new_block)
+        make_garbage(block_group, board_width, board_height, graphics_dict, player, falling_block, failures)
 
 
 def make_ghosts(board_width, board_height, graphics_dict):

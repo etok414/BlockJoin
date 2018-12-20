@@ -49,10 +49,10 @@ class Actor(Thing):
 
 
 class Player(Actor):
-    def __init__(self, board_width, board_height, image):
+    def __init__(self, board_width, board_height, image, turn_carried_block=True):
         super().__init__(board_width, board_height, 'e', 0, 0, image)
 
-        self.turn_carried_block = False
+        self.turn_carried_block = turn_carried_block
         self.status = 'Fine'
         # Status is 'Fine' if the actor can jump, 'Elevated' if it's atop a block, and 'Grounded' if it can't jump.
         # TODO: Status currently only serves to tell the animation if the player should be elevated.
@@ -113,11 +113,13 @@ class Block(Actor):
                 if probe(self.x_pos, self.y_pos, block_group, board_height, board_width):
                     self.x_pos = random.randrange(1, self.board_width - 2)
                     self.y_pos = random.randrange(1, self.board_height - 2)
-        elif orders == 'Garbage':
+        else:
+            self.drop_clock = 0
+        if orders == 'Garbage':
             self.x_pos = random.randrange(1, self.board_width)
             self.y_pos = random.randrange(1, self.board_height)
             if block_group is not None:
-                for _ in range(board_width*board_height):
+                for _ in range(board_width * board_height):
                     if probe(self.x_pos, self.y_pos, block_group, board_height, board_width):
                         self.x_pos = random.randrange(1, self.board_width)
                         self.y_pos = random.randrange(1, self.board_height)
@@ -132,8 +134,6 @@ class Block(Actor):
                     if not probe(x, y, block_group, board_height, board_width):
                         self.x_pos, self.y_pos = x, y
                         block_group.add(self)
-        else:
-            self.drop_clock = 0
         if self.letter_direction is None:
             if not bag:
                 bag = ['n', 'e', 's', 'w']
